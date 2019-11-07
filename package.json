@@ -7,7 +7,9 @@
   "license": "MIT",
   "scripts": {
     "prebuild": "rm -rf lib",
-    "build": "babel src -x .ts -d lib --source-maps",
+    "build": "yarn run build:lib && yarn run build:types",
+    "build:lib": "babel src -x .ts -d lib --source-maps",
+    "build:types": "tsc --project ./tsconfig.build.json --declaration --outDir lib --emitDeclarationOnly",
     "check-types": "tsc --incremental --noEmit",
     "lint": "eslint --ext .ts src/"
   },
