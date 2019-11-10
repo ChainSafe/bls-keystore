@@ -16,12 +16,16 @@
   "devDependencies": {
     "@babel/cli": "^7.6.4",
     "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-class-properties": "^7.7.0",
     "@babel/preset-env": "^7.6.3",
     "@babel/preset-typescript": "^7.6.0",
     "@babel/register": "^7.6.2",
+    "@types/jest": "^24.0.22",
+    "@types/uuid": "^3.4.6",
     "@typescript-eslint/eslint-plugin": "^2.6.0",
     "@typescript-eslint/parser": "^2.6.0",
     "eslint": "^6.6.0",
+    "jest": "^24.9.0",
     "typescript": "^3.6.4"
   },
   "babel": {
@@ -30,6 +34,16 @@
       "@babel/preset-typescript"
     ],
     "plugins": [
+      [
+        "@babel/plugin-proposal-class-properties",
+        {
+          "loose": true
+        }
+      ]
     ]
+  },
+  "dependencies": {
+    "@chainsafe/eth2.0-types": "^0.1.1",
+    "uuid": "^3.3.3"
   }
 }
