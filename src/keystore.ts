@@ -71,9 +71,6 @@ export class Keystore implements IKeystore {
     }else{
       return PBKDF2(password, args as PBKDF2Params);
     }
-    // else if(this.crypto.kdf.function === "pbkdf2"){
-    //     return PBKDF2(password, <PBKDF2Params> args);
-    // }
   }
 
   public static fromJson(json: IKeystore): Keystore {
