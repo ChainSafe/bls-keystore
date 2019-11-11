@@ -63,7 +63,7 @@ export class Keystore implements IKeystore {
   public pubkey = "";
   public path = "";
   public uuid: string = uuid.v4();
-  public version = 0;
+  public version = 4;
 
   private kdf(password: string, args: object): Buffer{
     if(this.crypto.kdf.function === "scrypt"){
