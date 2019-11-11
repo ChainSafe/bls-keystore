@@ -18,7 +18,7 @@ export interface PBKDF2Params {
 
 export const DefaultPBKDF2Params: PBKDF2Params = {
     salt: randomBytes(32), 
-    c: Math.pow(2, 18),
+    c: 262144,
     dklen: 32,
     prf: "hmac-sha256"
 }
@@ -26,13 +26,13 @@ export const DefaultPBKDF2Params: PBKDF2Params = {
 export const DefaultScryptParams: ScryptParams = {
     salt: randomBytes(32),
     dklen: 32,
-    n: Math.pow(2, 18),
+    n: 262144,
     r: 8,
     p: 1
 }
 
 export function scrypt(password: string, params: ScryptParams): Buffer{
-    return scryptSync(password, params.salt, params.dklen, {N: params.n, p: params.p, r: params.r});
+    return scryptSync(password, params.salt, params.dklen, {N: params.n, p: params.p, r: params.r, maxmem: Math.pow(2, 32)});
 }
 
 export function PBKDF2(password: string, params: PBKDF2Params): Buffer{

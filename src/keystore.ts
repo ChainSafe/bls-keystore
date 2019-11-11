@@ -1,7 +1,8 @@
 import uuid from "uuid";
-import { scrypt, ScryptParams, PBKDF2Params, PBKDF2, DefaultPBKDF2Params, AES_128_CTR, SHA256 } from "./utils/crypto";
+import { scrypt, ScryptParams, PBKDF2Params, PBKDF2, DefaultPBKDF2Params, AES_128_CTR, SHA256, DefaultScryptParams } from "./utils/crypto";
 import {bytes} from "@chainsafe/eth2.0-types";
 import { randomBytes } from "crypto";
+import {PublicKey, PrivateKey} from "@chainsafe/bls";
 
 export interface IKeystoreModule{
     function: string,
@@ -11,7 +12,7 @@ export interface IKeystoreModule{
 
 export class KeystoreModule implements IKeystoreModule {
     public function: string = "";
-    public params: ScryptParams | PBKDF2Params | any = DefaultPBKDF2Params;
+    public params: ScryptParams | PBKDF2Params | any = {};
     public message: bytes = new Buffer("");
 
     public static fromJson(json: IKeystoreModule): KeystoreModule {
@@ -45,7 +46,6 @@ export class KeystoreCrypto implements IKeystoreCrypto {
 
         return keystoreCrypto;
     }
-
 }
 
 export interface IKeystore{
@@ -53,7 +53,9 @@ export interface IKeystore{
     pubkey: string,
     path: string,
     uuid: string,
-    version: number
+    version: number;
+
+    decrypt(password: string): Buffer;
 }
 
 export class Keystore implements IKeystore {
@@ -86,19 +88,53 @@ export class Keystore implements IKeystore {
     }
 
     public static encrypt(secret: bytes, password: string, path: string = "", kdfSalt: bytes = randomBytes(32), aesIv: bytes = randomBytes(16)): IKeystore {
-        let keystore = new Keystore();
+        let keystore = new this();
 
         keystore.crypto.kdf.params.salt = kdfSalt;
         const decryptionKey: bytes = keystore.kdf(password, keystore.crypto.kdf.params);
         keystore.crypto.cipher.params.iv = aesIv;
         const cipher = AES_128_CTR(decryptionKey.slice(0, 16), keystore.crypto.cipher.params.iv);
-        cipher.update(secret);
-        const encryptedSecret = cipher.final();
-        keystore.crypto.cipher.message = encryptedSecret;
+        
+        let encryptedSecret = cipher.update(secret);
+        encryptedSecret = Buffer.concat([encryptedSecret, cipher.final()]);
+        
+        keystore.crypto.cipher.message = Buffer.from(encryptedSecret);
         keystore.crypto.checksum.message = SHA256(Buffer.concat([decryptionKey.slice(16, 32), keystore.crypto.cipher.message]));
         
-        keystore.path = path
+        keystore.pubkey = PublicKey.fromPrivateKey(PrivateKey.fromBytes(secret)).toHexString().substring(2);
+        keystore.path = path;
+
         return keystore;
     }
 
+    public decrypt(password: string): Buffer {
+
+        const decryptionKey: bytes = this.kdf(password, this.crypto.kdf.params);
+        
+        const cipher = AES_128_CTR(decryptionKey.slice(0, 16), this.crypto.cipher.params.iv);
+        let decryptedSecret = cipher.update(this.crypto.cipher.message);
+        decryptedSecret = Buffer.concat([decryptedSecret, cipher.final()]);
+        return decryptedSecret;
+    }
+
+}
+
+export class Pbkdf2Keystore extends Keystore {
+    constructor(){
+        super();
+        this.crypto.kdf.function = "pbkdf2";
+        this.crypto.kdf.params = DefaultPBKDF2Params;
+        this.crypto.checksum.function = "sha256";
+        this.crypto.cipher.function = "aes-128-ctr"
+    }
+}
+
+export class ScryptKeystore extends Keystore {
+    constructor(){
+        super();
+        this.crypto.kdf.function = "scrypt";
+        this.crypto.kdf.params = DefaultScryptParams;
+        this.crypto.checksum.function = "sha256";
+        this.crypto.cipher.function = "aes-128-ctr"
+    }
 }

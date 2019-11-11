@@ -20,6 +20,7 @@
     "@babel/preset-env": "^7.6.3",
     "@babel/preset-typescript": "^7.6.0",
     "@babel/register": "^7.6.2",
+    "@babel/runtime": "^7.7.2",
     "@types/jest": "^24.0.22",
     "@types/uuid": "^3.4.6",
     "@typescript-eslint/eslint-plugin": "^2.6.0",
@@ -43,6 +44,7 @@
     ]
   },
   "dependencies": {
+    "@chainsafe/bls": "^0.1.7",
     "@chainsafe/eth2.0-types": "^0.1.1",
     "uuid": "^3.3.3"
   }
