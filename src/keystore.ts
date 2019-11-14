@@ -1,8 +1,7 @@
 import uuid from "uuid";
 import { scrypt, PBKDF2, DefaultPBKDF2Params, AES_128_CTR, SHA256, DefaultScryptParams } from "./utils/crypto";
 import { PublicKey, PrivateKey } from "@chainsafe/bls";
-// @ts-ignore
-import secureRandom from "secure-random";
+import * as random from "secure-random";
 import { IKeystoreCrypto, ScryptParams, PBKDF2Params, bytes, IKeystore } from ".";
 import { KeystoreCrypto } from "./keystore-crypto";
 
@@ -35,7 +34,7 @@ export class Keystore implements IKeystore {
     return keystore;
   }
 
-  public static encrypt(secret: bytes, password: string, path = "", kdfSalt: bytes = secureRandom(32, { type: "Buffer" }), aesIv: bytes = secureRandom(16, { type: "Buffer" })): IKeystore {
+  public static encrypt(secret: bytes, password: string, path = "", kdfSalt: bytes = random.randomBuffer(32), aesIv: bytes = random.randomBuffer(16)): IKeystore {
     const keystore = new this();
 
     keystore.crypto.kdf.params.salt = kdfSalt;
