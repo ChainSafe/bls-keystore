@@ -1,30 +1,18 @@
-import { scryptSync, pbkdf2Sync, randomBytes, createCipheriv, createHash, Cipher } from "crypto";
+import { scryptSync, pbkdf2Sync, createCipheriv, createHash, Cipher } from "crypto";
 import { bytes } from "@chainsafe/eth2.0-types";
-
-export interface ScryptParams {
-  dklen: number;
-  salt: bytes;
-  n: number;
-  r: number;
-  p: number;
-}
-
-export interface PBKDF2Params {
-  salt: bytes;
-  c: number;
-  dklen: number;
-  prf: string;
-}
+// @ts-ignore
+import secureRandom from "secure-random";
+import { ScryptParams, PBKDF2Params } from "..";
 
 export const DefaultPBKDF2Params: PBKDF2Params = {
-  salt: randomBytes(32), 
+  salt: secureRandom(32, {type: "Buffer"}), 
   c: 262144,
   dklen: 32,
   prf: "hmac-sha256"
 }
 
 export const DefaultScryptParams: ScryptParams = {
-  salt: randomBytes(32),
+  salt: secureRandom(32, {type: "Buffer"}),
   dklen: 32,
   n: 262144,
   r: 8,

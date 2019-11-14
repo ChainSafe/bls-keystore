@@ -884,7 +884,7 @@
     "@types/bn.js" "^4.11.4"
     bn.js "^4.11.8"
 
-"@chainsafe/eth2.0-types@^0.1.0", "@chainsafe/eth2.0-types@^0.1.1":
+"@chainsafe/eth2.0-types@^0.1.0":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@chainsafe/eth2.0-types/-/eth2.0-types-0.1.1.tgz#36f55e897e32fcb0f3a5089299335c60326c8115"
   integrity sha512-cgff35Oa5tys6luN1YlbzNDH+aQDMaBDyGcA5q1FO8XG5l6ozffCb0s+79pIjEYPX8UZ5f87vC95QX7Z/GpI/Q==
@@ -4416,7 +4416,7 @@ sax@^1.2.4:
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
   integrity sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
 
-secure-random@^1.1.1:
+secure-random@^1.1.1, secure-random@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/secure-random/-/secure-random-1.1.2.tgz#ed103b460a851632d420d46448b2a900a41e7f7c"
   integrity sha512-H2bdSKERKdBV1SwoqYm6C0y+9EA94v6SUBOWO8kDndc4NoUih7Dv6Tsgma7zO1lv27wIvjlD0ZpMQk7um5dheQ==
