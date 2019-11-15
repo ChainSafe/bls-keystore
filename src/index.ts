@@ -1,3 +1,5 @@
+import { Buffer } from "buffer";
+
 export type bytes = Buffer;
 
 export interface ScryptParams {
@@ -14,6 +16,25 @@ export interface PBKDF2Params {
   dklen: number;
   prf: string;
 }
+
+export interface IKeystoreModuleParams {
+  function?: string;
+  params?: ScryptParams | PBKDF2Params | any;
+  message?: bytes;
+}
+
+export interface IKeystoreCryptoParams {
+  kdf?: IKeystoreModuleParams;
+  checksum?: IKeystoreModuleParams;
+  cipher?: IKeystoreModuleParams;
+}
+export interface IKeystoreParams {
+  crypto?: IKeystoreCryptoParams;
+  pubkey?: string;
+  path?: string;
+  uuid?: string;
+  version?: number;
+}
 export interface IKeystoreModule {
   function: string;
   params: ScryptParams | PBKDF2Params | any;
@@ -25,12 +46,13 @@ export interface IKeystoreCrypto {
   checksum: IKeystoreModule;
   cipher: IKeystoreModule;
 }
-export interface IKeystore{
+export interface IKeystore {
   crypto: IKeystoreCrypto;
   pubkey: string;
   path: string;
   uuid: string;
   version: number;
-  
+
   decrypt(password: string): Buffer;
+  verifyPassword(password: string): boolean;
 }

@@ -1,16 +1,26 @@
-import { IKeystoreModule, ScryptParams, PBKDF2Params, bytes } from ".";
+import { IKeystoreModule, ScryptParams, PBKDF2Params, bytes, IKeystoreModuleParams } from ".";
+import { Buffer } from "buffer";
 
 export class KeystoreModule implements IKeystoreModule {
-  public function = "";
-  public params: ScryptParams | PBKDF2Params | any = {};
-  public message: bytes = new Buffer("");
+  public readonly function: string = "";
+  public readonly params: ScryptParams | PBKDF2Params | any = {};
+  public readonly message: bytes = new Buffer("");
 
-  public static fromJson(json: IKeystoreModule): KeystoreModule {
-    const keystoreModule = new KeystoreModule();
-    keystoreModule.function = json["function"];
-    keystoreModule.params = json["params"];
-    keystoreModule.message = json["message"];
+  constructor(params?: IKeystoreModuleParams){
+    if(params){
+      this.function = params.function || "";
+      this.params = params.params || {};
+      this.message = params.message || new Buffer("");
+    }
+  }
 
-    return keystoreModule;
+  public static fromJson(json: Record<string, any>): KeystoreModule {
+    const jsonObj = json as IKeystoreModuleParams;
+
+    return new KeystoreModule({
+      function: jsonObj.function,
+      params: jsonObj.params,
+      message: jsonObj.message
+    });;
   }
 }

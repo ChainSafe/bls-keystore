@@ -1,19 +1,27 @@
-import { IKeystoreModule, IKeystoreCrypto } from ".";
+import { IKeystoreModule, IKeystoreCrypto, IKeystoreCryptoParams } from ".";
 import { KeystoreModule } from "./keystore-module";
 
 export class KeystoreCrypto implements IKeystoreCrypto {
 
-  public kdf: IKeystoreModule = new KeystoreModule();
-  public checksum: IKeystoreModule = new KeystoreModule();
-  public cipher: IKeystoreModule = new KeystoreModule();
+  public readonly kdf: IKeystoreModule = new KeystoreModule();
+  public readonly checksum: IKeystoreModule = new KeystoreModule({});
+  public readonly cipher: IKeystoreModule = new KeystoreModule({});
 
-  public static fromJson(json: IKeystoreCrypto): KeystoreCrypto {
-    const keystoreCrypto = new KeystoreCrypto();
+  constructor(params?: IKeystoreCryptoParams) {
+    if(params){
+      this.kdf = new KeystoreModule(params.kdf); 
+      this.checksum = new KeystoreModule(params.checksum);
+      this.cipher = new KeystoreModule(params.cipher);
+    }
+  }
 
-    keystoreCrypto.kdf = KeystoreModule.fromJson(json["kdf"]);
-    keystoreCrypto.checksum = KeystoreModule.fromJson(json["checksum"]);
-    keystoreCrypto.cipher = KeystoreModule.fromJson(json["cipher"]);
+  public static fromJson(json: Record<string, any>): KeystoreCrypto {
+    const jsonObj = json as IKeystoreCryptoParams;
 
-    return keystoreCrypto;
+    return new KeystoreCrypto({
+      kdf: KeystoreModule.fromJson(jsonObj.kdf || {}),
+      checksum: KeystoreModule.fromJson(jsonObj.checksum || {}),
+      cipher: KeystoreModule.fromJson(jsonObj.cipher || {}),
+    });
   }
 }
