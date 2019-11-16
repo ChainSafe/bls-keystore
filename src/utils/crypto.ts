@@ -1,10 +1,7 @@
-import { pbkdf2Sync } from "crypto";
-import { bytes } from "@chainsafe/eth2.0-types";
 import * as random from "secure-random";
-import { ScryptParams, PBKDF2Params } from "..";
-import { default as createSHA256Hash } from "bcrypto/lib/sha256";
+import { ScryptParams, PBKDF2Params, bytes } from "..";
+import { default as SHA256Hash } from "bcrypto/lib/sha256";
 import { derive as secryptDerive } from "bcrypto/lib/scrypt";
-import Hash256 from "bcrypto/lib/hash256";
 import { derive as pbkdf2Derive } from "bcrypto/lib/pbkdf2";
 import { Cipher } from "bcrypto/lib/cipher";
 
@@ -28,13 +25,11 @@ export function scrypt(password: string, params: ScryptParams): Buffer{
 }
 
 export function PBKDF2(password: string, params: PBKDF2Params): Buffer{
-  const _hash: Function = Hash256;
+  const _hash: Function = SHA256Hash;
   if(params.prf && params.prf.includes("sha512")){
     throw new Error("SHA512 Hash Function not implemented");
   }
-  //return pbkdf2Derive(_hash, Buffer.from(password, "utf-8"), params.salt, params.c, params.dklen);
-
-  return pbkdf2Sync(password, params.salt, params.c, params.dklen, "sha256");
+  return pbkdf2Derive(_hash, Buffer.from(password), params.salt, params.c, params.dklen);
 }
 
 export function AES_128_CTR(key: bytes, iv: bytes): Cipher {
@@ -42,5 +37,5 @@ export function AES_128_CTR(key: bytes, iv: bytes): Cipher {
 }
 
 export function SHA256(data: Buffer): Buffer {
-  return createSHA256Hash.digest(data);
+  return SHA256Hash.digest(data);
 }
