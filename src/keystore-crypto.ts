@@ -14,14 +14,4 @@ export class KeystoreCrypto implements IKeystoreCrypto {
       this.cipher = new KeystoreModule(params.cipher);
     }
   }
-
-  public static fromJson(json: Record<string, any>): KeystoreCrypto {
-    const jsonObj = json as IKeystoreCryptoParams;
-
-    return new KeystoreCrypto({
-      kdf: KeystoreModule.fromJson(jsonObj.kdf || {}),
-      checksum: KeystoreModule.fromJson(jsonObj.checksum || {}),
-      cipher: KeystoreModule.fromJson(jsonObj.cipher || {}),
-    });
-  }
 }

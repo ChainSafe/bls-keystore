@@ -19,7 +19,7 @@ export interface PBKDF2Params {
 
 export interface IKeystoreModuleParams {
   function?: string;
-  params?: ScryptParams | PBKDF2Params | any;
+  params?: ScryptParams | PBKDF2Params | {[key: string]: any};
   message?: bytes;
 }
 

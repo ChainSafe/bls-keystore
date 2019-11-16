@@ -1,13 +1,15 @@
 import uuid from "uuid";
 import { scrypt, PBKDF2, DefaultPBKDF2Params, AES_128_CTR, SHA256, DefaultScryptParams } from "./utils/crypto";
 import { PublicKey, PrivateKey } from "@chainsafe/bls";
-import * as random from "secure-random";
+import { randomBytes } from "bcrypto/lib/random";
 import { IKeystoreCrypto, ScryptParams, PBKDF2Params, bytes, IKeystore, IKeystoreParams } from ".";
 import { KeystoreCrypto } from "./keystore-crypto";
 import { Buffer } from "buffer";
+import { deepmerge } from "./utils/deepmerge";
+
 
 export class Keystore implements IKeystore {
-  public crypto: IKeystoreCrypto = new KeystoreCrypto({});
+  public readonly crypto: IKeystoreCrypto = new KeystoreCrypto({});
   public readonly pubkey: string = "";
   public readonly path: string = "";
   public readonly uuid: string = uuid.v4();
@@ -34,10 +36,10 @@ export class Keystore implements IKeystore {
     }
   }
 
-  public static fromJson(json: Record<string, any>): Keystore {
-    const jsonObj = json as IKeystoreParams;
+  public static fromJson(json: string): Keystore {
+    const jsonObj = JSON.parse(json) as IKeystoreParams;
     const keystore: IKeystoreParams = {
-      crypto: KeystoreCrypto.fromJson(jsonObj.crypto || {}),
+      crypto: new KeystoreCrypto(jsonObj.crypto || {}),
       path: jsonObj.path,
       pubkey: jsonObj.pubkey,
       uuid: jsonObj.uuid,
@@ -46,7 +48,7 @@ export class Keystore implements IKeystore {
     return new Keystore(keystore);
   }
 
-  public static encrypt(secret: bytes, password: string, path = "", kdfSalt: bytes = random.randomBuffer(32), aesIv: bytes = random.randomBuffer(16)): IKeystore {
+  public static encrypt(secret: bytes, password: string, path = "", kdfSalt: bytes = randomBytes(32), aesIv: bytes = randomBytes(16)): IKeystore {
     
     const keystore = new this({ 
       path: path,
@@ -101,31 +103,49 @@ export class Keystore implements IKeystore {
 }
 
 export class Pbkdf2Keystore extends Keystore {
-  constructor(keystore?: IKeystoreParams) {
-    super(keystore);
-    this.crypto.kdf.function = "pbkdf2";
-    this.crypto.checksum.function = "sha256";
-    this.crypto.cipher.function = "aes-128-ctr"
+  constructor(keystore: IKeystoreParams) {
+    let keystorePbkdf2 = keystore;
 
-    if(keystore && keystore.crypto && keystore.crypto.kdf && keystore.crypto.kdf.params){
-      this.crypto.kdf.params = Object.assign({}, DefaultPBKDF2Params, keystore.crypto.kdf.params);
-    } else{
-      this.crypto.kdf.params = DefaultPBKDF2Params;
-    }
+    keystorePbkdf2 = deepmerge({
+      crypto: {
+        kdf: {
+          function: "pbkdf2",
+          params: DefaultPBKDF2Params,
+        },
+        checksum: {
+          function: "sha256",
+        },
+        cipher: {
+          function: "aes-128-ctr",
+        }
+      }
+    }, keystorePbkdf2)
+
+    super(keystorePbkdf2);
+    
   }
 }
 
 export class ScryptKeystore extends Keystore {
   constructor(keystore?: IKeystoreParams) {
-    super(keystore);
-    this.crypto.kdf.function = "scrypt";
-    this.crypto.checksum.function = "sha256";
-    this.crypto.cipher.function = "aes-128-ctr"
 
-    if(keystore && keystore.crypto && keystore.crypto.kdf && keystore.crypto.kdf.params){
-      this.crypto.kdf.params = Object.assign({}, DefaultScryptParams, keystore.crypto.kdf.params);
-    } else{
-      this.crypto.kdf.params = DefaultScryptParams;
-    }
+    let keystoreScrypt = keystore;
+
+    keystoreScrypt = deepmerge({
+      crypto: {
+        kdf: {
+          function: "scrypt",
+          params: DefaultScryptParams,
+        },
+        checksum: {
+          function: "sha256",
+        },
+        cipher: {
+          function: "aes-128-ctr",
+        }
+      }
+    }, keystoreScrypt)
+
+    super(keystoreScrypt);
   }
 }

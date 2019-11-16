@@ -8,7 +8,7 @@ describe("BLS12-381 Keystore Test", () => {
 
         const keystoreJSON = JSON.parse(keystoreStr);
 
-        const keystore = Keystore.fromJson(keystoreJSON);
+        const keystore = Keystore.fromJson(keystoreStr);
 
         expect(keystore.crypto.checksum.function).toEqual(keystoreJSON.crypto.checksum.function);
         expect(keystore.crypto.checksum.message.toString()).toEqual(keystoreJSON.crypto.checksum.message);

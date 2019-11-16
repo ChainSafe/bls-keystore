@@ -11,6 +11,10 @@ declare module 'bcrypto/lib/sha256' {
   }
 }
 
+declare module 'bcrypto/lib/random' {
+  export function randomBytes(size: number): Buffer;
+}
+
 declare module 'bcrypto/lib/hash256' {
   export default class Hash256 {
     public init(): Hash256;

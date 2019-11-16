@@ -1,4 +1,4 @@
-import * as random from "secure-random";
+import { randomBytes } from "bcrypto/lib/random";
 import { ScryptParams, PBKDF2Params, bytes } from "..";
 import { default as SHA256Hash } from "bcrypto/lib/sha256";
 import { derive as secryptDerive } from "bcrypto/lib/scrypt";
@@ -6,14 +6,14 @@ import { derive as pbkdf2Derive } from "bcrypto/lib/pbkdf2";
 import { Cipher } from "bcrypto/lib/cipher";
 
 export const DefaultPBKDF2Params: PBKDF2Params = {
-  salt: random.randomBuffer(32), 
+  salt: randomBytes(32), 
   c: 262144,
   dklen: 32,
   prf: "hmac-sha256"
 }
 
 export const DefaultScryptParams: ScryptParams = {
-  salt: random.randomBuffer(32),
+  salt: randomBytes(32),
   dklen: 32,
   n: 262144,
   r: 8,
