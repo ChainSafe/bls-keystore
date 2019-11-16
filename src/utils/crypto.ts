@@ -1,7 +1,12 @@
-import { scryptSync, pbkdf2Sync, createCipheriv, createHash, Cipher } from "crypto";
+import { pbkdf2Sync } from "crypto";
 import { bytes } from "@chainsafe/eth2.0-types";
 import * as random from "secure-random";
 import { ScryptParams, PBKDF2Params } from "..";
+import { default as createSHA256Hash } from "bcrypto/lib/sha256";
+import { derive as secryptDerive } from "bcrypto/lib/scrypt";
+import Hash256 from "bcrypto/lib/hash256";
+import { derive as pbkdf2Derive } from "bcrypto/lib/pbkdf2";
+import { Cipher } from "bcrypto/lib/cipher";
 
 export const DefaultPBKDF2Params: PBKDF2Params = {
   salt: random.randomBuffer(32), 
@@ -19,21 +24,23 @@ export const DefaultScryptParams: ScryptParams = {
 }
 
 export function scrypt(password: string, params: ScryptParams): Buffer{
-  return scryptSync(password, params.salt, params.dklen, {N: params.n, p: params.p, r: params.r, maxmem: Math.pow(2, 32)});
+  return secryptDerive(Buffer.from(password), params.salt, params.n, params.r, params.p, params.dklen);
 }
 
 export function PBKDF2(password: string, params: PBKDF2Params): Buffer{
-  let _hash = "sha512";
-  if(params.prf && params.prf.includes("sha256")){
-    _hash = "sha256"
+  const _hash: Function = Hash256;
+  if(params.prf && params.prf.includes("sha512")){
+    throw new Error("SHA512 Hash Function not implemented");
   }
-  return pbkdf2Sync(password, params.salt, params.c, params.dklen, _hash);
+  //return pbkdf2Derive(_hash, Buffer.from(password, "utf-8"), params.salt, params.c, params.dklen);
+
+  return pbkdf2Sync(password, params.salt, params.c, params.dklen, "sha256");
 }
 
 export function AES_128_CTR(key: bytes, iv: bytes): Cipher {
-  return createCipheriv("aes-128-ctr", key, iv);
+  return new Cipher("AES-128-CTR").init(key, iv);
 }
 
 export function SHA256(data: Buffer): Buffer {
-  return createHash("sha256").update(data).digest();
+  return createSHA256Hash.digest(data);
 }
