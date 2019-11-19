@@ -3,6 +3,7 @@
     "target": "es6",
     "module": "commonjs",
     "strict": true,
+    "strictFunctionTypes": false,
     "esModuleInterop": true,
     "typeRoots": [
       "./node_modules/@types",

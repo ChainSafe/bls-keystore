@@ -1,5 +1,7 @@
-import { Keystore, Pbkdf2Keystore, ScryptKeystore } from "../src/keystore"
-import { readFileSync } from "fs";
+import {Keystore, Pbkdf2Keystore, ScryptKeystore} from "../src"
+import {readFileSync} from "fs";
+import {Buffer} from "buffer";
+import {CryptoFunction} from "../src/crypto/module";
 
 describe("BLS12-381 Keystore Test", () => {
 
@@ -26,7 +28,7 @@ describe("BLS12-381 Keystore Test", () => {
         expect(keystore.uuid).toEqual(keystoreJSON.uuid);
         expect(keystore.version).toEqual(keystoreJSON.version);
         expect(keystore.path).toEqual(keystoreJSON.path);
-    })
+    });
 
 
     it("Should be able to encrypt/decrypt Pbkdf2 keystore", () => {
@@ -41,6 +43,7 @@ describe("BLS12-381 Keystore Test", () => {
             secret,
             password,
             "",
+            CryptoFunction.pbkdf2,
             Buffer.from(keystoreJSON.crypto.kdf.params.salt, "hex"),
             Buffer.from(keystoreJSON.crypto.cipher.params.iv, "hex")
         );
@@ -50,14 +53,14 @@ describe("BLS12-381 Keystore Test", () => {
 
         expect(keystore.crypto.checksum.message.toString("hex"))
             .toEqual(keystoreJSON.crypto.checksum.message);
-        
+
         expect(keystore.pubkey).toEqual(keystoreJSON.pubkey);
 
         expect(keystore.decrypt(password)).toEqual(secret);
 
         expect(() => {keystore.decrypt("wrongpassword")}).toThrow("Invalid password");
 
-    })
+    });
 
     it("Should be able to encrypt/decrypt Scrypt keystore", () => {
 
@@ -72,6 +75,7 @@ describe("BLS12-381 Keystore Test", () => {
             secret,
             password,
             "",
+            CryptoFunction.scrypt,
             Buffer.from(keystoreJSON.crypto.kdf.params.salt, "hex"),
             Buffer.from(keystoreJSON.crypto.cipher.params.iv, "hex")
         );
@@ -81,7 +85,7 @@ describe("BLS12-381 Keystore Test", () => {
 
         expect(keystore.crypto.checksum.message.toString("hex"))
             .toEqual(keystoreJSON.crypto.checksum.message);
-        
+
         expect(keystore.pubkey).toEqual(keystoreJSON.pubkey);
 
         expect(keystore.decrypt(password)).toEqual(secret);
@@ -89,4 +93,4 @@ describe("BLS12-381 Keystore Test", () => {
         expect(() => {keystore.decrypt("wrongpassword")}).toThrow("Invalid password");
     })
 
-})
+});

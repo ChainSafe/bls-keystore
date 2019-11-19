@@ -1,45 +1,32 @@
 import uuid from "uuid";
-import { scrypt, PBKDF2, DefaultPBKDF2Params, AES_128_CTR, SHA256, DefaultScryptParams } from "./utils/crypto";
-import { PublicKey, PrivateKey } from "@chainsafe/bls";
-import { randomBytes } from "bcrypto/lib/random";
-import { IKeystoreCrypto, ScryptParams, PBKDF2Params, bytes, IKeystore, IKeystoreParams } from ".";
-import { KeystoreCrypto } from "./keystore-crypto";
-import { Buffer } from "buffer";
-import { deepmerge } from "./utils/deepmerge";
+import {AES_128_CTR, kdf, scrypt, SHA256} from "./utils/crypto";
+import {PrivateKey, PublicKey} from "@chainsafe/bls";
+import {randomBytes} from "bcrypto/lib/random";
+import {Buffer} from "buffer";
+import {deepmerge} from "./utils/deepmerge";
+import {Pbkdf2ModuleParams, ScryptModuleParams} from "./crypto/module/params";
+import {bytes, IKeystore, IKeystoreParams} from "./types";
+import {CryptoFunction, IKeystoreCrypto, KdfModule, KeystoreCrypto} from "./crypto";
 
 
 export class Keystore implements IKeystore {
-  public readonly crypto: IKeystoreCrypto = new KeystoreCrypto({});
-  public readonly pubkey: string = "";
-  public readonly path: string = "";
-  public readonly uuid: string = uuid.v4();
+  public readonly crypto: IKeystoreCrypto;
+  public readonly pubkey: string;
+  public readonly path: string;
+  public readonly uuid: string;
   public readonly version: number = 4;
 
-  private kdf(password: string, args: ScryptParams | PBKDF2Params): Buffer {
-    switch(this.crypto.kdf.function){
-      case "scrypt":
-        return scrypt(password, args as ScryptParams);
-      case "pbkdf2":
-        return PBKDF2(password, args as PBKDF2Params);
-      default:
-        throw new Error("Unsupported crypto function");
-    }
-  }
-
-  constructor(keystore?: IKeystoreParams){
-    if(keystore){
-      this.crypto = new KeystoreCrypto(keystore.crypto);
-      this.pubkey = keystore.pubkey || "";
-      this.path = keystore.path || "";
-      this.uuid = keystore.uuid || uuid.v4();
-      this.version = keystore.version || 4;
-    }
+  constructor(keystore: Partial<IKeystoreParams>){
+    this.crypto = new KeystoreCrypto(keystore.crypto || {});
+    this.pubkey = keystore.pubkey || "";
+    this.path = keystore.path || "";
+    this.uuid = keystore.uuid || uuid.v4();
   }
 
   public static fromJson(json: string): Keystore {
     const jsonObj = JSON.parse(json) as IKeystoreParams;
     const keystore: IKeystoreParams = {
-      crypto: new KeystoreCrypto(jsonObj.crypto || {}),
+      crypto: jsonObj.crypto,
       path: jsonObj.path,
       pubkey: jsonObj.pubkey,
       uuid: jsonObj.uuid,
@@ -48,69 +35,94 @@ export class Keystore implements IKeystore {
     return new Keystore(keystore);
   }
 
-  public static encrypt(secret: bytes, password: string, path = "", kdfSalt: bytes = randomBytes(32), aesIv: bytes = randomBytes(16)): IKeystore {
-    
-    const keystore = new this({ 
-      path: path,
-      pubkey: PublicKey.fromPrivateKey(PrivateKey.fromBytes(secret)).toHexString().replace("0x", ""),
-      crypto: {
-        kdf: {
-          params: {
-            salt: kdfSalt
-          }
-        },
-        cipher: {
-          params: {
-            iv: aesIv
-          }
-        }
+  public static encrypt(
+    secret: bytes,
+    password: string,
+    path = "",
+    crypto: CryptoFunction = CryptoFunction.pbkdf2,
+    kdfSalt: bytes = randomBytes(32),
+    aesIv: bytes = randomBytes(16)
+  ): IKeystore {
+    const kdfModule = new KdfModule({
+      function: crypto,
+      params: {
+        salt: kdfSalt
       }
     });
-
-    const decryptionKey: bytes = keystore.kdf(password, keystore.crypto.kdf.params);
-    const cipher = AES_128_CTR(decryptionKey.slice(0, 16), keystore.crypto.cipher.params.iv);
-
+    const decryptionKey: bytes = kdf(password, kdfModule.function, kdfModule.params);
+    const cipher = AES_128_CTR(decryptionKey.slice(0, 16), aesIv);
     let encryptedSecret = cipher.update(secret);
     encryptedSecret = Buffer.concat([encryptedSecret, cipher.final()]);
-
-    keystore.crypto.cipher.message = Buffer.from(encryptedSecret);
-    keystore.crypto.checksum.message = SHA256(Buffer.concat([decryptionKey.slice(16, 32), keystore.crypto.cipher.message]));
-    
-    return keystore;
+    const cipherMessage = Buffer.from(encryptedSecret);
+    const checksum = SHA256(Buffer.concat([decryptionKey.slice(16, 32), cipherMessage]));
+    return  new this({
+      path: path,
+      pubkey: PublicKey.fromPrivateKey(PrivateKey.fromBytes(secret)).toHexString().replace("0x", ""),
+      crypto: new KeystoreCrypto(
+        {
+          kdf: {
+            function: crypto,
+            params: {
+              salt: kdfSalt
+            }
+          },
+          checksum: {
+            message: checksum
+          },
+          cipher: {
+            params: {
+              iv: aesIv
+            },
+            message: cipherMessage
+          }
+        }
+      )
+    });
   }
 
   public verifyPassword(password: string): boolean {
-    const decryptionKey: bytes = this.kdf(password, this.crypto.kdf.params);
-    if( SHA256(Buffer.concat([decryptionKey.slice(16, 32), this.crypto.cipher.message])).compare(this.crypto.checksum.message) === 0){
-      // Password matches
-      return true;
-    }
-    return false;
+    const decryptionKey: bytes = kdf(password, this.crypto.kdf.function, this.crypto.kdf.params);
+    return SHA256(
+      Buffer.concat([decryptionKey.slice(16, 32), this.crypto.cipher.message])
+    ).compare(this.crypto.checksum.message) === 0;
+
   }
 
   public decrypt(password: string): Buffer {
 
-    if(this.verifyPassword(password) === false){
+    if(!this.verifyPassword(password)){
       throw new Error("Invalid password");
     }
-    const decryptionKey: bytes = this.kdf(password, this.crypto.kdf.params);
+    const decryptionKey: bytes = kdf(password, this.crypto.kdf.function, this.crypto.kdf.params);
     const cipher = AES_128_CTR(decryptionKey.slice(0, 16), this.crypto.cipher.params.iv);
     let decryptedSecret = cipher.update(this.crypto.cipher.message);
     decryptedSecret = Buffer.concat([decryptedSecret, cipher.final()]);
     return decryptedSecret;
   }
 
+
+  public toObject(): object {
+    return {
+      ...this,
+      crypto: this.crypto.toObject(),
+    };
+  }
+
+  public toJSON(): string {
+    return JSON.stringify(this.toObject());
+  }
+
 }
 
 export class Pbkdf2Keystore extends Keystore {
-  constructor(keystore: IKeystoreParams) {
+  constructor(keystore: Partial<IKeystoreParams>) {
     let keystorePbkdf2 = keystore;
 
     keystorePbkdf2 = deepmerge({
       crypto: {
         kdf: {
           function: "pbkdf2",
-          params: DefaultPBKDF2Params,
+          params: new Pbkdf2ModuleParams({}),
         },
         checksum: {
           function: "sha256",
@@ -119,15 +131,15 @@ export class Pbkdf2Keystore extends Keystore {
           function: "aes-128-ctr",
         }
       }
-    }, keystorePbkdf2)
+    }, keystorePbkdf2);
 
     super(keystorePbkdf2);
-    
+
   }
 }
 
 export class ScryptKeystore extends Keystore {
-  constructor(keystore?: IKeystoreParams) {
+  constructor(keystore: Partial<IKeystoreParams>) {
 
     let keystoreScrypt = keystore;
 
@@ -135,16 +147,13 @@ export class ScryptKeystore extends Keystore {
       crypto: {
         kdf: {
           function: "scrypt",
-          params: DefaultScryptParams,
-        },
-        checksum: {
-          function: "sha256",
+          params: new ScryptModuleParams({}),
         },
         cipher: {
           function: "aes-128-ctr",
         }
       }
-    }, keystoreScrypt)
+    }, keystoreScrypt);
 
     super(keystoreScrypt);
   }

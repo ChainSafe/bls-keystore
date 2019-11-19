@@ -11,6 +11,7 @@
     "build:lib": "babel src -x .ts -d lib --source-maps",
     "build:types": "tsc --project ./tsconfig.build.json --declaration --outDir lib --emitDeclarationOnly",
     "check-types": "tsc --incremental --noEmit",
+    "test": "jest --verbose --colors --coverage \"test/\"",
     "lint": "eslint --ext .ts src/"
   },
   "devDependencies": {
@@ -28,20 +29,6 @@
     "eslint": "^6.6.0",
     "jest": "^24.9.0",
     "typescript": "^3.6.4"
-  },
-  "babel": {
-    "presets": [
-      "@babel/preset-env",
-      "@babel/preset-typescript"
-    ],
-    "plugins": [
-      [
-        "@babel/plugin-proposal-class-properties",
-        {
-          "loose": true
-        }
-      ]
-    ]
   },
   "dependencies": {
     "@chainsafe/bls": "^0.1.7",
