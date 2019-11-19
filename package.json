@@ -1,7 +1,8 @@
 {
-  "name": "@nodefactory/keystore",
-  "version": "1.0.0",
+  "name": "@nodefactory/bls-keystore",
+  "version": "1.0.0-beta",
   "main": "lib/index.js",
+  "types": "lib/inded.d.ts",
   "repository": "git@github.com:NodeFactoryIo/bls-keystore.git",
   "author": "NodeFactory <info@nodefactory.io>",
   "license": "MIT",

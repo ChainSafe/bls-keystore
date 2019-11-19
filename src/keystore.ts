@@ -35,6 +35,15 @@ export class Keystore implements IKeystore {
     return new Keystore(keystore);
   }
 
+  /**
+   * Encrypt given secret and kreate keystore object.
+   * @param secret secret to be encrypted
+   * @param password to be used for encryption
+   * @param path key derivation path as per eip 2334
+   * @param crypto pbkdf2 or scrypt
+   * @param kdfSalt
+   * @param aesIv
+   */
   public static encrypt(
     secret: bytes,
     password: string,
@@ -88,6 +97,10 @@ export class Keystore implements IKeystore {
 
   }
 
+  /**
+   * Decrypts keystore secret
+   * @param password
+   */
   public decrypt(password: string): Buffer {
 
     if(!this.verifyPassword(password)){
