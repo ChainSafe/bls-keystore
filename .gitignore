@@ -4,6 +4,8 @@ node_modules/
 .nyc_output
 lib
 dist
+.idea
+coverage
 
 # Logs
 logs
