@@ -16,6 +16,6 @@ export interface IKeystoreCrypto extends Serializable{
 
 export interface IKeystoreCryptoParams {
   kdf: Partial<IKeystoreModuleParams>;
-  checksum: Partial<IBaseModuleParams>
+  checksum: Partial<IBaseModuleParams>;
   cipher: Partial<ICipherModuleParams>;
 }

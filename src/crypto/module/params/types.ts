@@ -18,5 +18,5 @@ export interface IPBKDF2ModuleParams extends Serializable {
 }
 
 export interface IAes128CtrModuleParams extends Serializable {
-  iv: bytes
+  iv: bytes;
 }

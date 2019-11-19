@@ -8,8 +8,7 @@ export class BaseModule {
   public readonly message: bytes;
 
   constructor(params: Partial<IBaseModuleParams>){
-    // @ts-ignore
-    this.function = CryptoFunction[params.function];
+    this.function = CryptoFunction[params.function as keyof typeof CryptoFunction];
     assert(!!this.function, "Unsupported crypto function");
     this.message = params.message || Buffer.alloc(0);
   }

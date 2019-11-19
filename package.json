@@ -1,6 +1,6 @@
 {
   "name": "@nodefactory/bls-keystore",
-  "version": "1.0.0-beta1",
+  "version": "1.0.0-beta2",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "repository": "git@github.com:NodeFactoryIo/bls-keystore.git",

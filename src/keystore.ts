@@ -1,5 +1,5 @@
 import uuid from "uuid";
-import {AES_128_CTR, kdf, scrypt, SHA256} from "./utils/crypto";
+import {AES_128_CTR, kdf, SHA256} from "./utils/crypto";
 import {PrivateKey, PublicKey} from "@chainsafe/bls";
 import {randomBytes} from "bcrypto/lib/random";
 import {Buffer} from "buffer";
