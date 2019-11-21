@@ -10,7 +10,7 @@ export enum CryptoFunction {
 
 export interface IBaseModuleParams {
   function: keyof typeof CryptoFunction;
-  message: bytes;
+  message: bytes | string;
 }
 
 export interface IKeystoreModuleParams extends IBaseModuleParams {
@@ -22,7 +22,7 @@ export interface ICipherModuleParams extends IBaseModuleParams {
 
 export interface IBaseModule {
   function: CryptoFunction;
-  message: bytes;
+  message: bytes | string;
 }
 
 export interface IKdfModule extends IBaseModule, Serializable {

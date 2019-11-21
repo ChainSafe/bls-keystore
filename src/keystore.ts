@@ -91,7 +91,7 @@ export class Keystore implements IKeystore {
   public verifyPassword(password: string): boolean {
     const decryptionKey: bytes = kdf(password, this.crypto.kdf.function, this.crypto.kdf.params);
     return SHA256(
-      Buffer.concat([decryptionKey.slice(16, 32), this.crypto.cipher.message])
+      Buffer. concat([decryptionKey.slice(16, 32), this.crypto.cipher.message])
     ).compare(this.crypto.checksum.message) === 0;
 
   }

@@ -10,6 +10,9 @@ export class BaseModule {
   constructor(params: Partial<IBaseModuleParams>){
     this.function = CryptoFunction[params.function as keyof typeof CryptoFunction];
     assert(!!this.function, "Unsupported crypto function");
+    if(typeof params.message === "string") {
+      params.message = Buffer.from(params.message, "hex");
+    }
     this.message = params.message || Buffer.alloc(0);
   }
 

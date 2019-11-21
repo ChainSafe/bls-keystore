@@ -2,6 +2,7 @@ import {bytes} from "../../../types";
 import {IPBKDF2ModuleParams} from "./types";
 import {deepmerge} from "../../../utils/deepmerge";
 import {randomBytes} from "../../../utils/crypto";
+import {Buffer} from "buffer";
 
 export const DefaultPBKDF2Params: Partial<IPBKDF2ModuleParams> = {
   salt: randomBytes(32),
@@ -21,6 +22,9 @@ export class Pbkdf2ModuleParams implements IPBKDF2ModuleParams {
     this.c = params.c;
     this.dklen = params.dklen;
     this.prf = params.prf;
+    if(typeof params.salt === "string") {
+      params.salt = Buffer.from(params.salt, "hex");
+    }
     this.salt = params.salt;
   }
 

@@ -5,7 +5,7 @@ import assert from "assert";
 
 export class CryptoCipher extends BaseModule implements ICypherModule {
 
-  public readonly params: IAes128CtrModuleParams;
+  public readonly params: Aes128ctrModuleParams;
 
   constructor(params: Partial<ICipherModuleParams>){
     params.function = params.function || CryptoFunction["aes-128-ctr"];

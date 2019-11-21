@@ -5,6 +5,11 @@ import {CryptoFunction} from "../src/crypto/module";
 
 describe("BLS12-381 Keystore Test", () => {
 
+  it("Roundtrip should work", () => {
+    expect(Keystore.fromJson(Keystore.encrypt(Buffer.alloc(32), "test", "", CryptoFunction.pbkdf2).toJSON()).verifyPassword("test")).toBeTruthy();
+    expect(Keystore.fromJson(Keystore.encrypt(Buffer.alloc(32), "test", "", CryptoFunction.scrypt).toJSON()).verifyPassword("test")).toBeTruthy();
+  });
+
     it("Should be able to parse JSON keystore", () => {
         const keystoreStr = readFileSync('./test/keystore.pbkdf2.test.json', 'utf8');
 

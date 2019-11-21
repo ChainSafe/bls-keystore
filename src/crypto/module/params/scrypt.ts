@@ -2,6 +2,7 @@ import {bytes} from "../../../types";
 import {IScryptModuleParams} from "./types";
 import {deepmerge} from "../../../utils/deepmerge";
 import {randomBytes} from "../../../utils/crypto";
+import {Buffer} from "buffer";
 
 export const DefaultScryptParams: Partial<IScryptModuleParams> = {
   salt: randomBytes(32),
@@ -21,6 +22,9 @@ export class ScryptModuleParams implements IScryptModuleParams {
   constructor(opts: Partial<IScryptModuleParams>) {
     const params: IScryptModuleParams = deepmerge(DefaultScryptParams, opts);
     this.dklen = params.dklen;
+    if(typeof params.salt === "string") {
+      params.salt = Buffer.from(params.salt, "hex");
+    }
     this.salt = params.salt;
     this.n = params.n;
     this.p = params.p;
