@@ -1,7 +1,7 @@
 import {bytes} from "../../../types";
-import {randomBytes} from "bcrypto/lib/random";
 import {IPBKDF2ModuleParams} from "./types";
 import {deepmerge} from "../../../utils/deepmerge";
+import {randomBytes} from "../../../utils/crypto";
 
 export const DefaultPBKDF2Params: Partial<IPBKDF2ModuleParams> = {
   salt: randomBytes(32),

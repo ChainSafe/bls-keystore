@@ -37,3 +37,12 @@ export function kdf(password: string, func: CryptoFunction, args: KdfModuleParam
       throw new Error("Unsupported crypto function");
   }
 }
+
+export function randomBytes(length: number): Buffer {
+  //electron replaces openssl with boressl which causes incompatibilities with randomness
+  if(process && process.env.ELECTRON) {
+    return require("bcrypto/lib/node/random").randomBytes(length);
+  } else {
+    return require("bcrypto/lib/random").randomBytes(length);
+  }
+}

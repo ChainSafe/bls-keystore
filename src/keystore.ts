@@ -1,7 +1,6 @@
 import uuid from "uuid";
-import {AES_128_CTR, kdf, SHA256} from "./utils/crypto";
+import {AES_128_CTR, kdf, randomBytes, SHA256} from "./utils/crypto";
 import {PrivateKey, PublicKey} from "@chainsafe/bls";
-import {randomBytes} from "bcrypto/lib/random";
 import {Buffer} from "buffer";
 import {deepmerge} from "./utils/deepmerge";
 import {Pbkdf2ModuleParams, ScryptModuleParams} from "./crypto/module/params";

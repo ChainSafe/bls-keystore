@@ -1,7 +1,7 @@
 import {bytes} from "../../../types";
-import {randomBytes} from "bcrypto/lib/random";
 import {IScryptModuleParams} from "./types";
 import {deepmerge} from "../../../utils/deepmerge";
+import {randomBytes} from "../../../utils/crypto";
 
 export const DefaultScryptParams: Partial<IScryptModuleParams> = {
   salt: randomBytes(32),
