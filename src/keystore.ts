@@ -22,7 +22,7 @@ export class Keystore implements IKeystore {
     this.uuid = keystore.uuid || uuid.v4();
   }
 
-  public static fromJson(json: string): Keystore {
+  public static fromJSON(json: string): Keystore {
     const jsonObj = JSON.parse(json) as IKeystoreParams;
     const keystore: IKeystoreParams = {
       crypto: jsonObj.crypto,

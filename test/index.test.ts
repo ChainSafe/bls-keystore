@@ -6,8 +6,8 @@ import {CryptoFunction} from "../src/crypto/module";
 describe("BLS12-381 Keystore Test", () => {
 
   it("Roundtrip should work", () => {
-    expect(Keystore.fromJson(Keystore.encrypt(Buffer.alloc(32), "test", "", CryptoFunction.pbkdf2).toJSON()).verifyPassword("test")).toBeTruthy();
-    expect(Keystore.fromJson(Keystore.encrypt(Buffer.alloc(32), "test", "", CryptoFunction.scrypt).toJSON()).verifyPassword("test")).toBeTruthy();
+    expect(Keystore.fromJSON(Keystore.encrypt(Buffer.alloc(32), "test", "", CryptoFunction.pbkdf2).toJSON()).verifyPassword("test")).toBeTruthy();
+    expect(Keystore.fromJSON(Keystore.encrypt(Buffer.alloc(32), "test", "", CryptoFunction.scrypt).toJSON()).verifyPassword("test")).toBeTruthy();
   });
 
     it("Should be able to parse JSON keystore", () => {
@@ -15,19 +15,19 @@ describe("BLS12-381 Keystore Test", () => {
 
         const keystoreJSON = JSON.parse(keystoreStr);
 
-        const keystore = Keystore.fromJson(keystoreStr);
+        const keystore = Keystore.fromJSON(keystoreStr);
 
         expect(keystore.crypto.checksum.function).toEqual(keystoreJSON.crypto.checksum.function);
-        expect(keystore.crypto.checksum.message.toString()).toEqual(keystoreJSON.crypto.checksum.message);
+        expect(keystore.crypto.checksum.message.toString("hex")).toEqual(keystoreJSON.crypto.checksum.message);
         expect(keystore.crypto.checksum.params).toEqual(keystoreJSON.crypto.checksum.params);
 
         expect(keystore.crypto.kdf.function).toEqual(keystoreJSON.crypto.kdf.function);
-        expect(keystore.crypto.kdf.message.toString()).toEqual(keystoreJSON.crypto.kdf.message);
-        expect(keystore.crypto.kdf.params).toEqual(keystoreJSON.crypto.kdf.params);
+        expect(keystore.crypto.kdf.message.toString("hex")).toEqual(keystoreJSON.crypto.kdf.message);
+        expect(keystore.crypto.kdf.params.toObject()).toEqual(keystoreJSON.crypto.kdf.params);
 
         expect(keystore.crypto.cipher.function).toEqual(keystoreJSON.crypto.cipher.function);
-        expect(keystore.crypto.cipher.message.toString()).toEqual(keystoreJSON.crypto.cipher.message);
-        expect(keystore.crypto.cipher.params).toEqual(keystoreJSON.crypto.cipher.params);
+        expect(keystore.crypto.cipher.message.toString("hex")).toEqual(keystoreJSON.crypto.cipher.message);
+        expect(keystore.crypto.cipher.params.toObject()).toEqual(keystoreJSON.crypto.cipher.params);
 
         expect(keystore.pubkey).toEqual(keystoreJSON.pubkey);
         expect(keystore.uuid).toEqual(keystoreJSON.uuid);

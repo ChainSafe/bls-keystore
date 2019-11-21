@@ -22,7 +22,7 @@ export interface ICipherModuleParams extends IBaseModuleParams {
 
 export interface IBaseModule {
   function: CryptoFunction;
-  message: bytes | string;
+  message: bytes;
 }
 
 export interface IKdfModule extends IBaseModule, Serializable {

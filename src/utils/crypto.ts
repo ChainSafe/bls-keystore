@@ -45,7 +45,7 @@ export function randomBytes(length: number): Buffer {
   }
 }
 
-function pbkdf2Derive(hash: Function, pass: Buffer | string, salt: Buffer | string, iter: number, len: number) {
+function pbkdf2Derive(hash: Function, pass: Buffer | string, salt: Buffer | string, iter: number, len: number): Buffer {
   //electron replaces openssl with boressl which causes incompatibilities
   if(process && process.env.ELECTRON) {
     return require("bcrypto/lib/node/pbkdf2").derive(hash, pass, salt, iter, len);
@@ -54,7 +54,7 @@ function pbkdf2Derive(hash: Function, pass: Buffer | string, salt: Buffer | stri
   }
 }
 
-function scryptDerive(passwd: Buffer | string, salt: Buffer | string, N: number, r: number, p: number, len: number) {
+function scryptDerive(passwd: Buffer | string, salt: Buffer | string, N: number, r: number, p: number, len: number): Buffer {
   //electron replaces openssl with boressl which causes incompatibilities
   if(process && process.env.ELECTRON) {
     return require("bcrypto/lib/node/scrypt").derive(passwd, salt, N, r, p, len);

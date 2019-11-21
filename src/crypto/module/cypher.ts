@@ -1,4 +1,4 @@
-import {Aes128ctrModuleParams, IAes128CtrModuleParams} from "./params";
+import {Aes128ctrModuleParams} from "./params";
 import {CryptoFunction, ICipherModuleParams, ICypherModule} from "./types";
 import {BaseModule} from "./base";
 import assert from "assert";
