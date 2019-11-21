@@ -8,8 +8,12 @@
 > Bls keystore implementation as per draft [EIP 2335](https://github.com/ethereum/EIPs/pull/2335) for node and browser.
 
 
-### How to use?
+##### Electron usage
+- Set env variable ELECTRON=true because electron replaces openssl with BoreSSL which 
+causes some incompatibilities when using native modules.
 
+
+### How to use?
 ```javascript
 import {Buffer} from "buffer";
 import {Keystore} from "@nodefactory/bls-keystore";
