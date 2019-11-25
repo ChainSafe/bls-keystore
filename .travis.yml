@@ -10,3 +10,4 @@ script:
   yarn run lint;
   yarn run check-types;
   yarn run build;
+  yarn run test;
