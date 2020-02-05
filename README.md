@@ -16,7 +16,7 @@ causes some incompatibilities when using native modules.
 ### How to use?
 ```javascript
 import {Buffer} from "buffer";
-import {Keystore} from "@nodefactory/bls-keystore";
+import {Keystore} from "@chainsafe/bls-keystore";
 
 // encrypt private key
 const privateKey: Buffer;

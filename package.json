@@ -1,13 +1,13 @@
 {
-  "name": "@nodefactory/bls-keystore",
+  "name": "@chainsafe/bls-keystore",
   "version": "1.0.0-beta7",
   "main": "lib/index.js",
   "files": [
     "lib"
   ],
   "types": "lib/index.d.ts",
-  "repository": "git@github.com:NodeFactoryIo/bls-keystore.git",
-  "author": "NodeFactory <info@nodefactory.io>",
+  "repository": "git@github.com:ChainSafe/bls-keystore.git",
+  "author": "ChainSafe <info@chainsafe.io>",
   "license": "MIT",
   "scripts": {
     "prebuild": "rm -rf lib",
