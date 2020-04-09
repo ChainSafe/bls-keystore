@@ -1,6 +1,5 @@
 import uuid from "uuid";
 import {AES_128_CTR, kdf, randomBytes, SHA256} from "./utils/crypto";
-import {PrivateKey, PublicKey} from "@chainsafe/bls";
 import {Buffer} from "buffer";
 import {deepmerge} from "./utils/deepmerge";
 import {Pbkdf2ModuleParams, ScryptModuleParams} from "./crypto/module/params";
@@ -45,11 +44,13 @@ export class Keystore implements IKeystore {
    */
   public static encrypt(
     secret: bytes,
+    pubkey: bytes,
     password: string,
     path = "",
     crypto: CryptoFunction = CryptoFunction.pbkdf2,
     kdfSalt: bytes = randomBytes(32),
-    aesIv: bytes = randomBytes(16)
+    aesIv: bytes = randomBytes(16),
+
   ): IKeystore {
     const kdfModule = new KdfModule({
       function: crypto,
@@ -65,7 +66,7 @@ export class Keystore implements IKeystore {
     const checksum = SHA256(Buffer.concat([decryptionKey.slice(16, 32), cipherMessage]));
     return  new this({
       path: path,
-      pubkey: PublicKey.fromPrivateKey(PrivateKey.fromBytes(secret)).toHexString().replace("0x", ""),
+      pubkey: pubkey.toString("hex"),
       crypto: new KeystoreCrypto(
         {
           kdf: {
