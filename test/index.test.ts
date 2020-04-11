@@ -3,11 +3,12 @@ import {readFileSync} from "fs";
 import {Buffer} from "buffer";
 import {CryptoFunction} from "../src/crypto/module";
 
-describe("BLS12-381 Keystore Test", () => {
+const pubkey = Buffer.alloc(48);
 
+describe("BLS12-381 Keystore Test", () => {
   it("Roundtrip should work", () => {
-    expect(Keystore.fromJSON(Keystore.encrypt(Buffer.alloc(32), "test", "", CryptoFunction.pbkdf2).toJSON()).verifyPassword("test")).toBeTruthy();
-    expect(Keystore.fromJSON(Keystore.encrypt(Buffer.alloc(32), "test", "", CryptoFunction.scrypt).toJSON()).verifyPassword("test")).toBeTruthy();
+    expect(Keystore.fromJSON(Keystore.encrypt(Buffer.alloc(32), pubkey,"test", "", CryptoFunction.pbkdf2).toJSON()).verifyPassword("test")).toBeTruthy();
+    expect(Keystore.fromJSON(Keystore.encrypt(Buffer.alloc(32), pubkey, "test", "", CryptoFunction.scrypt).toJSON()).verifyPassword("test")).toBeTruthy();
   });
 
     it("Should be able to parse JSON keystore", () => {
@@ -46,6 +47,7 @@ describe("BLS12-381 Keystore Test", () => {
 
         const keystore = Pbkdf2Keystore.encrypt(
             secret,
+            keystoreJSON.pubkey,
             password,
             "",
             CryptoFunction.pbkdf2,
@@ -78,6 +80,7 @@ describe("BLS12-381 Keystore Test", () => {
 
         const keystore = ScryptKeystore.encrypt(
             secret,
+            keystoreJSON.pubkey,
             password,
             "",
             CryptoFunction.scrypt,
