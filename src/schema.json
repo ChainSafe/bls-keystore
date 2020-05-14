@@ -1,0 +1,237 @@
+{
+    "$ref": "#/definitions/Keystore",
+    "definitions": {
+        "Keystore": {
+            "type": "object",
+            "properties": {
+                "crypto": {
+                    "type": "object",
+                    "properties": {
+                        "kdf": {
+                            "$ref": "#/definitions/KdfModule"
+                        },
+                        "checksum": {
+                            "$ref": "#/definitions/ChecksumModule"
+                        },
+                        "cipher": {
+                            "$ref": "#/definitions/CipherModule"
+                        }
+                    }
+                },
+                "pubkey": {
+                    "type": "string",
+                    "pattern": "^([A-Fa-f0-9]{2}){48}$"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "string",
+                    "format": "uuid"
+                },
+                "version": {
+                    "type": "integer",
+                    "minimum": 4,
+                    "maximum": 4
+                }
+            },
+            "required": [
+                "crypto",
+                "path",
+                "uuid",
+                "version"
+            ],
+            "title": "Keystore"
+        },
+        "Module": {
+            "type": "object",
+            "properties": {
+                "function": {
+                    "type": "string"
+                },
+                "params": {
+                    "type": "object"
+                },
+                "message": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "function",
+                "message",
+                "params"
+            ]
+        },
+        "KdfModule": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Module"
+                },
+                {
+                    "oneOf": [
+                        {
+                            "$ref": "#/definitions/Pbkdf2Module"
+                        },
+                        {
+                            "$ref": "#/definitions/ScryptModule"
+                        }
+                    ]
+                }
+            ]
+        },
+        "ChecksumModule": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Module"
+                },
+                {
+                    "oneOf": [
+                        {
+                            "$ref": "#/definitions/Sha2Module"
+                        }
+                    ]
+                }
+            ]
+        },
+        "CipherModule": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/Module"
+                },
+                {
+                    "oneOf": [
+                        {
+                            "$ref": "#/definitions/Aes128CtrModule"
+                        }
+                    ]
+                }
+            ]
+        },
+        "Pbkdf2Module": {
+            "type": "object",
+            "properties": {
+                "function": {
+                    "type": "string",
+                    "pattern": "^pbkdf2$"
+                },
+                "params": {
+                    "type": "object",
+                    "properties": {
+                        "dklen": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "c": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "prf": {
+                            "type": "string",
+                            "pattern": "^hmac-sha256$"
+                        },
+                        "salt": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "dklen",
+                        "c",
+                        "prf",
+                        "salt"
+                    ]
+                },
+                "message": {
+                    "type": "string",
+                    "pattern": "^$"
+                }
+            }
+        },
+        "ScryptModule": {
+            "type": "object",
+            "properties": {
+                "function": {
+                    "type": "string",
+                    "pattern": "^scrypt$"
+                },
+                "params": {
+                    "type": "object",
+                    "properties": {
+                        "dklen": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "n": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "p": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "r": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "salt": {
+                            "type": "string",
+                            "pattern": "^([A-Fa-f0-9]{2}){32}$"
+                        }
+                    },
+                    "required": [
+                        "dklen",
+                        "n",
+                        "p",
+                        "r",
+                        "salt"
+                    ]
+                },
+                "message": {
+                    "type": "string",
+                    "pattern": "^$"
+                }
+            }
+        },
+        "Sha2Module": {
+            "type": "object",
+            "properties": {
+                "function": {
+                    "type": "string",
+                    "pattern": "^sha256$"
+                },
+                "params": {
+                    "type": "object",
+                    "additionalProperties": false
+                },
+                "message": {
+                    "type": "string",
+                    "pattern": "^([A-Fa-f0-9]{2}){32}$"
+                }
+            }
+        },
+        "Aes128CtrModule": {
+            "type": "object",
+            "properties": {
+                "function": {
+                    "type": "string",
+                    "pattern": "^aes-128-ctr$"
+                },
+                "params": {
+                    "type": "object",
+                    "properties": {
+                        "iv": {
+                            "type": "string",
+                            "pattern": "^([A-Fa-f0-9]{2}){16}$"
+                        }
+                    },
+                    "required": [
+                        "iv"
+                    ]
+                },
+                "message": {
+                    "type": "string",
+                    "pattern": "^([A-Fa-f0-9]{2}){32}$"
+                }
+            }
+        }
+    }
+}
