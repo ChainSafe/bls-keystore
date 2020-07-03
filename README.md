@@ -4,6 +4,8 @@
 ![npm](https://img.shields.io/npm/v/@ChainSafe/bls-keystore)
 ![Discord](https://img.shields.io/discord/593655374469660673?color=blue&label=Discord&logo=discord)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![es-version](https://img.shields.io/badge/ES-2015-yellow)
+![node-version](https://img.shields.io/badge/node-10.x-green)
 
 > Bls keystore implementation as per draft [EIP 2335](https://github.com/ethereum/EIPs/pull/2335) for node and browser.
 
