@@ -7,6 +7,7 @@ import { IKeystore, IKdfModule, ICipherModule, IChecksumModule } from "./types";
 import { kdf, defaultPbkdfModule, defaultScryptModule } from "./kdf";
 import { checksum, verifyChecksum, defaultSha256Module } from "./checksum";
 import { cipherEncrypt, cipherDecrypt, defaultAes128CtrModule } from "./cipher";
+import { normalizePassword } from "./password";
 
 export {
   defaultPbkdfModule,
@@ -27,7 +28,7 @@ export {
  * @param cipherMod cipher configuration module
  */
 export async function create(
-  password: string,
+  password: string | Uint8Array,
   secret: Uint8Array,
   pubkey: Uint8Array,
   path: string,
@@ -35,7 +36,7 @@ export async function create(
   checksumMod: Pick<IChecksumModule, "function"> = defaultSha256Module(),
   cipherMod: Pick<ICipherModule, "function" | "params"> = defaultAes128CtrModule(),
 ): Promise<IKeystore> {
-  const encryptionKey = await kdf(kdfMod as IKdfModule, password);
+  const encryptionKey = await kdf(kdfMod as IKdfModule, normalizePassword(password));
   const ciphertext = await cipherEncrypt(cipherMod as ICipherModule, encryptionKey.slice(0, 16), secret);
   return {
     version: 4,
@@ -69,8 +70,8 @@ export async function create(
 /**
  * Verify the password of a keystore object
  */
-export async function verifyPassword(keystore: IKeystore, password: string): Promise<boolean> {
-  const decryptionKey = await kdf(keystore.crypto.kdf, password);
+export async function verifyPassword(keystore: IKeystore, password: string | Uint8Array): Promise<boolean> {
+  const decryptionKey = await kdf(keystore.crypto.kdf, normalizePassword(password));
   const ciphertext = Buffer.from(keystore.crypto.cipher.message, "hex");
   return verifyChecksum(keystore.crypto.checksum, decryptionKey, ciphertext);
 }
@@ -78,8 +79,8 @@ export async function verifyPassword(keystore: IKeystore, password: string): Pro
 /**
  * Decrypt a keystore, returns the secret key or throws on invalid password
  */
-export async function decrypt(keystore: IKeystore, password: string): Promise<Buffer> {
-  const decryptionKey = await kdf(keystore.crypto.kdf, password);
+export async function decrypt(keystore: IKeystore, password: string | Uint8Array): Promise<Buffer> {
+  const decryptionKey = await kdf(keystore.crypto.kdf, normalizePassword(password));
   const ciphertext = Buffer.from(keystore.crypto.cipher.message, "hex");
   if (!(await verifyChecksum(keystore.crypto.checksum, decryptionKey, ciphertext))) {
     throw new Error("Invalid password");

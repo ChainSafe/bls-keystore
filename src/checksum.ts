@@ -1,6 +1,7 @@
 import { Buffer } from "buffer";
+import { sha256 } from "ethereum-cryptography/sha256";
+
 import { IChecksumModule } from "./types";
-import { sha2 } from "./node/sha2";
 
 // default checksum configuration
 
@@ -18,7 +19,7 @@ function checksumData(key: Buffer, ciphertext: Buffer): Buffer {
 
 export function checksum(mod: IChecksumModule, key: Buffer, ciphertext: Buffer): Promise<Buffer> {
   if (mod.function === "sha256") {
-    return sha2(checksumData(key, ciphertext));
+    return Promise.resolve(sha256(checksumData(key, ciphertext)));
   } else {
     throw new Error("Invalid checksum type");
   }
@@ -26,7 +27,7 @@ export function checksum(mod: IChecksumModule, key: Buffer, ciphertext: Buffer):
 
 export async function verifyChecksum(mod: IChecksumModule, key: Buffer, ciphertext: Buffer): Promise<boolean> {
   if (mod.function === "sha256") {
-    return Buffer.from(mod.message, "hex").equals(await sha2(checksumData(key, ciphertext)));
+    return Buffer.from(mod.message, "hex").equals(sha256(checksumData(key, ciphertext)));
   } else {
     throw new Error("Invalid checksum type");
   }

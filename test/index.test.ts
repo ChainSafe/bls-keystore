@@ -1,68 +1,45 @@
 import { expect } from "chai";
 import { Buffer } from "buffer";
+
 import { create, decrypt, verifyPassword, isValidKeystore, validateKeystore } from "../src"
-
-const pbkdf2Test = require("./keystore.pbkdf2.test.json");
-const scryptTest = require("./keystore.pbkdf2.test.json");
-
-const pubkey = Buffer.alloc(48);
 
 describe("BLS12-381 Keystore Test", () => {
   it("Roundtrip should work", async () => {
-    expect(await verifyPassword(await create("test", Buffer.alloc(32), Buffer.alloc(48), ""), "test")).to.be.true;
-  });
-
-  it("Should be able to validate a keystore", () => {
-    const keystore = pbkdf2Test;
-    expect(isValidKeystore(keystore)).to.be.true;
+    const testKeystore = await create("test", Buffer.alloc(32), Buffer.alloc(48), "");
+    expect(isValidKeystore(testKeystore)).to.be.true;
+    expect(await verifyPassword(testKeystore, "test")).to.be.true;
   });
 });
 
 describe("Known Test Vectors", () => {
+  it("Should be able to encrypt/decrypt Pbkdf2 keystores", async () => {
+    const keystores = [
+      require('./vectors/pbkdf2-0.json'),
+      require('./vectors/pbkdf2-0.json'),
+    ];
+    for (const keystore of keystores) {
+      const password = keystore.password;
+      const secret = Buffer.from(keystore.secret.slice(2), "hex");
 
-  it("Should be able to encrypt/decrypt Pbkdf2 keystore", async () => {
-    const keystore = pbkdf2Test;
-
-    const secret = Buffer.from("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f", "hex");
-    const password = "testpassword";
-
-    const keystoreDup = await create(
-      password,
-      secret,
-      Buffer.from(keystore.pubkey, "hex"),
-      keystore.path,
-      keystore.crypto.kdf,
-      keystore.crypto.checksum,
-      keystore.crypto.cipher,
-    );
-    keystoreDup.uuid = keystore.uuid;
-
-    expect(() => validateKeystore(keystore)).to.not.throw;
-    expect(keystore).to.deep.equal(keystoreDup);
-    expect(await decrypt(keystore, password)).to.deep.equal(secret);
-    //expect(async () => await decrypt(keystore, "wrongpassword")).to.throw("Invalid password");
+      expect(isValidKeystore(keystore)).to.be.true;
+      expect(await verifyPassword(keystore, password)).to.be.true;
+      expect(await decrypt(keystore, password)).to.deep.equal(secret);
+    }
   });
 
-  it("Should be able to encrypt/decrypt Scrypt keystore", async () => {
-    const keystore = scryptTest;
+  it("Should be able to encrypt/decrypt Scrypt keystores", async function () {
+    this.timeout(100000)
+    const keystores = [
+      require('./vectors/scrypt-0.json'),
+      require('./vectors/scrypt-1.json'),
+    ];
+    for (const keystore of keystores) {
+      const password = keystore.password;
+      const secret = Buffer.from(keystore.secret.slice(2), "hex");
 
-    const secret = Buffer.from("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f", "hex");
-    const password = "testpassword";
-
-    const keystoreDup = await create(
-      password,
-      secret,
-      Buffer.from(keystore.pubkey, "hex"),
-      keystore.path,
-      keystore.crypto.kdf,
-      keystore.crypto.checksum,
-      keystore.crypto.cipher,
-    );
-    keystoreDup.uuid = keystore.uuid;
-
-    expect(() => validateKeystore(keystore)).to.not.throw;
-    expect(keystore).to.deep.equal(keystoreDup);
-    expect(await decrypt(keystore, password)).to.deep.equal(secret);
-    //expect(async () => await decrypt(keystore, "wrongpassword")).to.throw("Invalid password");
+      expect(isValidKeystore(keystore)).to.be.true;
+      expect(await verifyPassword(keystore, password)).to.be.true;
+      expect(await decrypt(keystore, password)).to.deep.equal(secret);
+    }
   });
 });
