@@ -15,7 +15,7 @@
   "scripts": {
     "prebuild": "rm -rf lib",
     "build": "tsc --declaration --outDir lib",
-    "check-types": "tsc --incremental --noEmit",
+    "check-types": "tsc --noEmit",
     "test": "yarn test:node && yarn test:browser",
     "test:node": "mocha --verbose --colors --coverage -r ts-node/register test/*.test.ts",
     "test:browser": "karma start",
