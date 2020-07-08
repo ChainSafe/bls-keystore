@@ -25,6 +25,9 @@
                 "path": {
                     "type": "string"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "uuid": {
                     "type": "string",
                     "format": "uuid"

@@ -10,6 +10,7 @@ import { create, decrypt, validateKeystore } from "./functional";
 export class Keystore implements IKeystore {
   version: number;
   uuid: string;
+  description?: string;
   path: string;
   pubkey: string;
   crypto: {
@@ -21,6 +22,7 @@ export class Keystore implements IKeystore {
   constructor(obj: IKeystore) {
     this.version = obj.version;
     this.uuid = obj.uuid;
+    this.description = obj.description;
     this.path = obj.path;
     this.pubkey = obj.pubkey;
     this.crypto = {
@@ -38,12 +40,13 @@ export class Keystore implements IKeystore {
     secret: Uint8Array,
     pubkey: Uint8Array,
     path: string,
+    description: string | null = null,
     kdfMod: Pick<IKdfModule, "function" | "params"> = defaultPbkdfModule(),
     checksumMod: Pick<IChecksumModule, "function"> = defaultSha256Module(),
     cipherMod: Pick<ICipherModule, "function" | "params"> = defaultAes128CtrModule(),
   ): Promise<Keystore> {
     const obj = await create(
-      password, secret, pubkey, path, kdfMod, checksumMod, cipherMod,
+      password, secret, pubkey, path, description, kdfMod, checksumMod, cipherMod,
     );
     return new Keystore(obj)
   }

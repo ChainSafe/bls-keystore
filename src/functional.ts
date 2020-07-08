@@ -32,6 +32,7 @@ export async function create(
   secret: Uint8Array,
   pubkey: Uint8Array,
   path: string,
+  description: string | null = null,
   kdfMod: Pick<IKdfModule, "function" | "params"> = defaultPbkdfModule(),
   checksumMod: Pick<IChecksumModule, "function"> = defaultSha256Module(),
   cipherMod: Pick<ICipherModule, "function" | "params"> = defaultAes128CtrModule(),
@@ -41,6 +42,7 @@ export async function create(
   return {
     version: 4,
     uuid: uuidV4(),
+    description: description || undefined,
     path: path,
     pubkey: Buffer.from(pubkey).toString("hex"),
     crypto: {

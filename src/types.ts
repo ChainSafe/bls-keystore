@@ -5,6 +5,7 @@
 export interface IKeystore {
   version: number;
   uuid: string;
+  description?: string;
   path: string;
   pubkey: string;
   crypto: {
