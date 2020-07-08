@@ -2,7 +2,7 @@ import { defaultPbkdfModule } from "./kdf";
 import { defaultSha256Module } from "./checksum";
 import { defaultAes128CtrModule } from "./cipher";
 import { IKeystore, IKdfModule, IChecksumModule, ICipherModule } from "./types";
-import { create, decrypt, validateKeystore } from "./functional";
+import { create, decrypt, verifyPassword, validateKeystore } from "./functional";
 
 /**
  * Class-based BLS Keystore
@@ -71,6 +71,13 @@ export class Keystore implements IKeystore {
    */
   async decrypt(password: string | Uint8Array): Promise<Buffer> {
     return decrypt(this, password);
+  }
+
+  /**
+   * Verify the password as correct or not
+   */
+  async verifyPassword(password: string | Uint8Array): Promise<boolean> {
+    return verifyPassword(this, password);
   }
 
   /**
