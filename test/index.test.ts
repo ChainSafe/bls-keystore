@@ -1,104 +1,45 @@
-import {Keystore, Pbkdf2Keystore, ScryptKeystore} from "../src"
-import {readFileSync} from "fs";
-import {Buffer} from "buffer";
-import {CryptoFunction} from "../src/crypto/module";
+import { expect } from "chai";
+import { Buffer } from "buffer";
 
-const pubkey = Buffer.alloc(48);
+import { create, decrypt, verifyPassword, isValidKeystore, validateKeystore } from "../src"
 
 describe("BLS12-381 Keystore Test", () => {
-  it("Roundtrip should work", () => {
-    expect(Keystore.fromJSON(Keystore.encrypt(Buffer.alloc(32), pubkey,"test", "", CryptoFunction.pbkdf2).toJSON()).verifyPassword("test")).toBeTruthy();
-    expect(Keystore.fromJSON(Keystore.encrypt(Buffer.alloc(32), pubkey, "test", "", CryptoFunction.scrypt).toJSON()).verifyPassword("test")).toBeTruthy();
+  it("Roundtrip should work", async () => {
+    const testKeystore = await create("test", Buffer.alloc(32), Buffer.alloc(48), "");
+    expect(isValidKeystore(testKeystore)).to.be.true;
+    expect(await verifyPassword(testKeystore, "test")).to.be.true;
+  });
+});
+
+describe("Known Test Vectors", () => {
+  it("Should be able to encrypt/decrypt Pbkdf2 keystores", async () => {
+    const keystores = [
+      require('./vectors/pbkdf2-0.json'),
+      require('./vectors/pbkdf2-0.json'),
+    ];
+    for (const keystore of keystores) {
+      const password = keystore.password;
+      const secret = Buffer.from(keystore.secret.slice(2), "hex");
+
+      expect(isValidKeystore(keystore)).to.be.true;
+      expect(await verifyPassword(keystore, password)).to.be.true;
+      expect(await decrypt(keystore, password)).to.deep.equal(secret);
+    }
   });
 
-    it("Should be able to parse JSON keystore", () => {
-        const keystoreStr = readFileSync('./test/keystore.pbkdf2.test.json', 'utf8');
+  it("Should be able to encrypt/decrypt Scrypt keystores", async function () {
+    this.timeout(100000)
+    const keystores = [
+      require('./vectors/scrypt-0.json'),
+      require('./vectors/scrypt-1.json'),
+    ];
+    for (const keystore of keystores) {
+      const password = keystore.password;
+      const secret = Buffer.from(keystore.secret.slice(2), "hex");
 
-        const keystoreJSON = JSON.parse(keystoreStr);
-
-        const keystore = Keystore.fromJSON(keystoreStr);
-
-        expect(keystore.crypto.checksum.function).toEqual(keystoreJSON.crypto.checksum.function);
-        expect(keystore.crypto.checksum.message.toString("hex")).toEqual(keystoreJSON.crypto.checksum.message);
-        expect(keystore.crypto.checksum.params).toEqual(keystoreJSON.crypto.checksum.params);
-
-        expect(keystore.crypto.kdf.function).toEqual(keystoreJSON.crypto.kdf.function);
-        expect(keystore.crypto.kdf.message.toString("hex")).toEqual(keystoreJSON.crypto.kdf.message);
-        expect(keystore.crypto.kdf.params.toObject()).toEqual(keystoreJSON.crypto.kdf.params);
-
-        expect(keystore.crypto.cipher.function).toEqual(keystoreJSON.crypto.cipher.function);
-        expect(keystore.crypto.cipher.message.toString("hex")).toEqual(keystoreJSON.crypto.cipher.message);
-        expect(keystore.crypto.cipher.params.toObject()).toEqual(keystoreJSON.crypto.cipher.params);
-
-        expect(keystore.pubkey).toEqual(keystoreJSON.pubkey);
-        expect(keystore.uuid).toEqual(keystoreJSON.uuid);
-        expect(keystore.version).toEqual(keystoreJSON.version);
-        expect(keystore.path).toEqual(keystoreJSON.path);
-    });
-
-
-    it("Should be able to encrypt/decrypt Pbkdf2 keystore", () => {
-        const keystoreStr = readFileSync('./test/keystore.pbkdf2.test.json');
-
-        const keystoreJSON = JSON.parse(keystoreStr.toString());
-
-        const secret = Buffer.from("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f", "hex");
-        const password = "testpassword";
-
-        const keystore = Pbkdf2Keystore.encrypt(
-            secret,
-            keystoreJSON.pubkey,
-            password,
-            "",
-            CryptoFunction.pbkdf2,
-            Buffer.from(keystoreJSON.crypto.kdf.params.salt, "hex"),
-            Buffer.from(keystoreJSON.crypto.cipher.params.iv, "hex")
-        );
-
-        expect(keystore.crypto.cipher.message.toString("hex"))
-            .toEqual(keystoreJSON.crypto.cipher.message);
-
-        expect(keystore.crypto.checksum.message.toString("hex"))
-            .toEqual(keystoreJSON.crypto.checksum.message);
-
-        expect(keystore.pubkey).toEqual(keystoreJSON.pubkey);
-
-        expect(keystore.decrypt(password)).toEqual(secret);
-
-        expect(() => {keystore.decrypt("wrongpassword")}).toThrow("Invalid password");
-
-    });
-
-    it("Should be able to encrypt/decrypt Scrypt keystore", () => {
-
-        const keystoreStr = readFileSync('./test/keystore.scrypt.test.json');
-
-        const keystoreJSON = JSON.parse(keystoreStr.toString());
-
-        const secret = Buffer.from("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f", "hex");
-        const password = "testpassword";
-
-        const keystore = ScryptKeystore.encrypt(
-            secret,
-            keystoreJSON.pubkey,
-            password,
-            "",
-            CryptoFunction.scrypt,
-            Buffer.from(keystoreJSON.crypto.kdf.params.salt, "hex"),
-            Buffer.from(keystoreJSON.crypto.cipher.params.iv, "hex")
-        );
-
-        expect(keystore.crypto.cipher.message.toString("hex"))
-            .toEqual(keystoreJSON.crypto.cipher.message);
-
-        expect(keystore.crypto.checksum.message.toString("hex"))
-            .toEqual(keystoreJSON.crypto.checksum.message);
-
-        expect(keystore.pubkey).toEqual(keystoreJSON.pubkey);
-
-        expect(keystore.decrypt(password)).toEqual(secret);
-
-        expect(() => {keystore.decrypt("wrongpassword")}).toThrow("Invalid password");
-    })
-
+      expect(isValidKeystore(keystore)).to.be.true;
+      expect(await verifyPassword(keystore, password)).to.be.true;
+      expect(await decrypt(keystore, password)).to.deep.equal(secret);
+    }
+  });
 });

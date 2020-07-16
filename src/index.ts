@@ -1,2 +1,3 @@
-export {Keystore, Pbkdf2Keystore, ScryptKeystore} from "./keystore";
 export * from "./types";
+export * from "./functional";
+export * from "./class";

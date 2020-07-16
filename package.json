@@ -1,42 +1,55 @@
 {
   "name": "@chainsafe/bls-keystore",
-  "version": "1.0.0-beta8",
+  "version": "2.0.0",
   "main": "lib/index.js",
   "files": [
     "lib"
   ],
+  "browser": {
+    "lib/node": "lib/browser"
+  },
   "types": "lib/index.d.ts",
   "repository": "git@github.com:ChainSafe/bls-keystore.git",
   "author": "ChainSafe <info@chainsafe.io>",
   "license": "MIT",
   "scripts": {
     "prebuild": "rm -rf lib",
-    "build": "yarn run build:lib && yarn run build:types",
-    "build:lib": "babel src -x .ts -d lib --source-maps",
-    "build:types": "tsc --project ./tsconfig.build.json --declaration --outDir lib --emitDeclarationOnly",
-    "check-types": "tsc --incremental --noEmit",
-    "test": "jest --verbose --colors --coverage \"test/\"",
+    "build": "tsc --declaration --outDir lib",
+    "check-types": "tsc --noEmit",
+    "test": "yarn test:node && yarn test:browser",
+    "test:node": "mocha --verbose --colors --coverage -r ts-node/register test/*.test.ts",
+    "test:browser": "karma start",
     "lint": "eslint --ext .ts src/"
   },
   "devDependencies": {
-    "@babel/cli": "^7.6.4",
-    "@babel/core": "^7.6.4",
-    "@babel/plugin-proposal-class-properties": "^7.7.0",
-    "@babel/preset-env": "^7.6.3",
-    "@babel/preset-typescript": "^7.6.0",
-    "@babel/register": "^7.6.2",
-    "@types/jest": "^24.0.22",
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "@types/pbkdf2": "^3.0.0",
+    "@types/randombytes": "^2.0.0",
+    "@types/scrypt-js": "^2.0.4",
     "@types/uuid": "^3.4.6",
     "@typescript-eslint/eslint-plugin": "^2.6.0",
     "@typescript-eslint/parser": "^2.6.0",
+    "chai": "^4.2.0",
     "eslint": "^6.6.0",
-    "jest": "^24.9.0",
-    "typescript": "^3.6.4"
+    "karma": "^5.0.5",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-cli": "^2.0.0",
+    "karma-mocha": "^2.0.1",
+    "karma-spec-reporter": "^0.0.32",
+    "karma-webpack": "^4.0.2",
+    "mocha": "^7.1.2",
+    "ts-loader": "^7.0.4",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.9.2",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12"
   },
   "dependencies": {
-    "bcrypto": "^4.2.8",
+    "ajv": "^6.12.2",
     "buffer": "^5.4.3",
-    "deepmerge": "^4.2.2",
+    "ethereum-cryptography": "^0.1.3",
     "uuid": "^3.3.3"
   }
 }
