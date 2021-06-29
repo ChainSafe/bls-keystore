@@ -1,6 +1,5 @@
 # @ChainSafe/bls-keystore
 
-[![Build Status](https://travis-ci.com/ChainSafe/bls-keystore.svg?branch=master)](https://travis-ci.com/ChainSafe/bls-keystore)
 ![npm](https://img.shields.io/npm/v/@ChainSafe/bls-keystore)
 ![Discord](https://img.shields.io/discord/593655374469660673?color=blue&label=Discord&logo=discord)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
