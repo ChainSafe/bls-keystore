@@ -14,7 +14,8 @@ module.exports = function(config) {
     webpack: {
       mode: "production",
       module: webpackConfig.module,
-      resolve: webpackConfig.resolve
+      resolve: webpackConfig.resolve,
+      plugins: webpackConfig.plugins
     },
     reporters: ["spec"],
 
