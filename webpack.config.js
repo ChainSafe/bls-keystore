@@ -1,3 +1,5 @@
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
+
 module.exports = {
   entry: "./src/web.ts",
   mode: "production",
@@ -6,11 +8,17 @@ module.exports = {
   },
   devtool: "source-map",
   resolve: {
-    extensions: [".ts", ".js"]
+    extensions: [".ts", ".js"],
+    fallback: {
+      "stream": require.resolve("stream-browserify"),
+    }
   },
   module: {
     rules: [
       {test: /\.ts$/, use: {loader: "ts-loader", options: {transpileOnly: true}}}
     ]
-  }
+  },
+  plugins: [
+    new NodePolyfillPlugin()
+  ]
 };

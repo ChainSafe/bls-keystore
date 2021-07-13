@@ -48,7 +48,7 @@ export type IChecksumModule = ISha2ChecksumModule;
 
 export interface ISha2ChecksumModule {
   function: "sha256";
-  params: {};
+  params: Record<string, never>;
   message: string;
 }
 
