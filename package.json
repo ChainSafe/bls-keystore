@@ -19,7 +19,8 @@
     "test": "yarn test:node && yarn test:browser",
     "test:node": "mocha --verbose --colors --coverage -r ts-node/register test/*.test.ts",
     "test:browser": "karma start",
-    "lint": "eslint --ext .ts src/"
+    "lint": "eslint --ext .ts src/",
+    "lint:fix": "eslint --ext .ts src/ --fix"
   },
   "devDependencies": {
     "@types/chai": "^4.2.21",
