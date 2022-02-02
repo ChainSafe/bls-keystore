@@ -77,7 +77,7 @@ const data: unknown = ...;
 Keystore.fromObject(data); // returns a Keystore or throws if data is invalid
 ```
 
-For key derivation checkout [@chainsafe/bls-keygen](https://github.com/ChainSafe/bls-keygen)
+For key derivation checkout [@Limpisey10/bls-keygen](https://github.com/ChainSafe/bls-keygen)
 
 ### Contribute
 
