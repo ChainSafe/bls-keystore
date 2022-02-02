@@ -1,25 +1,25 @@
-import { Buffer } from "buffer";
 import { getRandomBytesSync } from "ethereum-cryptography/random";
 import { encrypt as aesEncrypt, decrypt as aesDecrypt } from "ethereum-cryptography/aes";
 
 import { ICipherModule } from "./types";
+import { bytesToHex, hexToBytes } from "ethereum-cryptography/utils";
 
 export function defaultAes128CtrModule(): Pick<ICipherModule, "function" | "params"> {
   return {
     function: "aes-128-ctr",
     params: {
-      iv: getRandomBytesSync(16).toString("hex"),
+      iv: bytesToHex(getRandomBytesSync(16)),
     },
   };
 }
 
-export async function cipherEncrypt(mod: ICipherModule, key: Buffer, data: Uint8Array): Promise<Buffer> {
+export async function cipherEncrypt(mod: ICipherModule, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
   if (mod.function === "aes-128-ctr") {
     try {
       return await aesEncrypt(
-        Buffer.from(data),
+        data,
         key,
-        Buffer.from(mod.params.iv, "hex"),
+        hexToBytes(mod.params.iv),
         mod.function,
         false,
       );
@@ -31,13 +31,13 @@ export async function cipherEncrypt(mod: ICipherModule, key: Buffer, data: Uint8
   }
 }
 
-export async function cipherDecrypt(mod: ICipherModule, key: Buffer): Promise<Buffer> {
+export async function cipherDecrypt(mod: ICipherModule, key: Uint8Array): Promise<Uint8Array> {
   if (mod.function === "aes-128-ctr") {
     try {
       return await aesDecrypt(
-        Buffer.from(mod.message, "hex"),
+        hexToBytes(mod.message),
         key,
-        Buffer.from(mod.params.iv, "hex"),
+        hexToBytes(mod.params.iv),
         mod.function,
         false,
       );

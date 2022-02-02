@@ -69,7 +69,7 @@ export class Keystore implements IKeystore {
   /**
    * Decrypt a keystore, returns the secret key or throws on invalid password
    */
-  async decrypt(password: string | Uint8Array): Promise<Buffer> {
+  async decrypt(password: string | Uint8Array): Promise<Uint8Array> {
     return decrypt(this, password);
   }
 
