@@ -16,7 +16,12 @@
                         "cipher": {
                             "$ref": "#/definitions/CipherModule"
                         }
-                    }
+                    },
+                    "required": [
+                        "kdf",
+                        "checksum",
+                        "cipher"
+                    ]
                 },
                 "pubkey": {
                     "type": "string",
