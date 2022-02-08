@@ -49,6 +49,6 @@
   "dependencies": {
     "ajv": "^6.12.2",
     "ethereum-cryptography": "^1.0.0",
-    "uuid": "^3.3.3"
+    "uuid": "^8.3.2"
   }
 }
