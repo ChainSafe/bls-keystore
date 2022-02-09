@@ -1,6 +1,4 @@
-import Ajv = require("ajv");
 import {v4 as uuidV4} from "uuid";
-import schema = require("./schema.json");
 
 import { IKeystore, IKdfModule, ICipherModule, IChecksumModule } from "./types";
 import { kdf, defaultPbkdfModule, defaultScryptModule } from "./kdf";
@@ -88,37 +86,4 @@ export async function decrypt(keystore: IKeystore, password: string | Uint8Array
     throw new Error("Invalid password");
   }
   return cipherDecrypt(keystore.crypto.cipher, decryptionKey.slice(0, 16));
-}
-
-// keystore validation
-
-/**
- * Return schema validation errors for a potential keystore object
- */
-export function schemaValidationErrors(data: unknown): Ajv.ErrorObject[] | null {
-  const ajv = new Ajv();
-  const validated = ajv.validate(schema, data)
-  if (validated) {
-    return null;
-  }
-  return ajv.errors as Ajv.ErrorObject[];
-}
-
-/**
- * Validate an unknown object as a valid keystore, throws on invalid keystore
- */
-export function validateKeystore(keystore: unknown): asserts keystore is IKeystore {
-  const errors = schemaValidationErrors(keystore);
-  if (errors) {
-    throw new Error(
-      `${errors[0].dataPath}: ${errors[0].message}`
-    );
-  }
-}
-
-/**
- * Predicate for validating an unknown object as a valid keystore
- */
-export function isValidKeystore(keystore: unknown): keystore is IKeystore {
-  return !schemaValidationErrors(keystore);
 }

@@ -13,7 +13,8 @@
   "author": "ChainSafe <info@chainsafe.io>",
   "license": "MIT",
   "scripts": {
-    "prebuild": "rm -rf lib",
+    "prebuild": "rm -rf lib && yarn build:codegen",
+    "build:codegen": "ts-node -P tsconfig.json scripts/schema-validation-codegen.ts",
     "build": "tsc --declaration --outDir lib",
     "check-types": "tsc --noEmit",
     "test": "yarn test:node && yarn test:browser",
@@ -30,6 +31,8 @@
     "@types/uuid": "^3.4.6",
     "@typescript-eslint/eslint-plugin": "^2.6.0",
     "@typescript-eslint/parser": "^2.6.0",
+    "ajv": "^8.10.0",
+    "ajv-formats": "^2.1.1",
     "chai": "^4.2.0",
     "eslint": "^6.6.0",
     "karma": "^5.0.5",
@@ -47,8 +50,7 @@
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
-    "ajv": "^6.12.2",
     "ethereum-cryptography": "^1.0.0",
-    "uuid": "^3.3.3"
+    "uuid": "^8.3.2"
   }
 }

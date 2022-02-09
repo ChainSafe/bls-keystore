@@ -2,7 +2,8 @@ import { defaultPbkdfModule } from "./kdf";
 import { defaultSha256Module } from "./checksum";
 import { defaultAes128CtrModule } from "./cipher";
 import { IKeystore, IKdfModule, IChecksumModule, ICipherModule } from "./types";
-import { create, decrypt, verifyPassword, validateKeystore } from "./functional";
+import { create, decrypt, verifyPassword } from "./functional";
+import { validateKeystore } from "./schema-validation";
 
 /**
  * Class-based BLS Keystore
