@@ -1,9 +1,9 @@
-import { Buffer } from "buffer";
+import { utf8ToBytes } from "ethereum-cryptography/utils";
 
-export function normalizePassword(password: string | Uint8Array): Buffer {
+export function normalizePassword(password: string | Uint8Array): Uint8Array {
   if (typeof password === "string") {
-    return Buffer.from(password.normalize("NFKD"), "utf8");
+    return utf8ToBytes(password.normalize("NFKD"));
   } else {
-    return Buffer.from(password);
+    return password;
   }
 }

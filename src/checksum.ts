@@ -1,5 +1,5 @@
-import { Buffer } from "buffer";
 import { sha256 } from "ethereum-cryptography/sha256";
+import { concatBytes, equalsBytes, hexToBytes } from "ethereum-cryptography/utils";
 
 import { IChecksumModule } from "./types";
 
@@ -13,11 +13,11 @@ export function defaultSha256Module(): Pick<IChecksumModule, "function"> {
 
 // checksum operations
 
-function checksumData(key: Buffer, ciphertext: Buffer): Buffer {
-  return Buffer.concat([key.slice(16), ciphertext]);
+function checksumData(key: Uint8Array, ciphertext: Uint8Array): Uint8Array {
+  return concatBytes(key.slice(16), ciphertext);
 }
 
-export function checksum(mod: IChecksumModule, key: Buffer, ciphertext: Buffer): Promise<Buffer> {
+export function checksum(mod: IChecksumModule, key: Uint8Array, ciphertext: Uint8Array): Promise<Uint8Array> {
   if (mod.function === "sha256") {
     return Promise.resolve(sha256(checksumData(key, ciphertext)));
   } else {
@@ -25,9 +25,9 @@ export function checksum(mod: IChecksumModule, key: Buffer, ciphertext: Buffer):
   }
 }
 
-export async function verifyChecksum(mod: IChecksumModule, key: Buffer, ciphertext: Buffer): Promise<boolean> {
+export async function verifyChecksum(mod: IChecksumModule, key: Uint8Array, ciphertext: Uint8Array): Promise<boolean> {
   if (mod.function === "sha256") {
-    return Buffer.from(mod.message, "hex").equals(sha256(checksumData(key, ciphertext)));
+    return equalsBytes(hexToBytes(mod.message), sha256(checksumData(key, ciphertext)));
   } else {
     throw new Error("Invalid checksum type");
   }

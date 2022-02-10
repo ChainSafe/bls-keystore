@@ -1,7 +1,7 @@
-import { Buffer } from "buffer";
 import { getRandomBytesSync } from "ethereum-cryptography/random";
 import { pbkdf2 } from "ethereum-cryptography/pbkdf2";
 import { scrypt } from "ethereum-cryptography/scrypt";
+import { bytesToHex, hexToBytes } from "ethereum-cryptography/utils"
 
 import { IKdfModule, IPbkdf2KdfModule, IScryptKdfModule } from "./types";
 
@@ -14,7 +14,7 @@ export function defaultPbkdfModule(): Pick<IPbkdf2KdfModule, "function" | "param
       dklen: 32,
       c: 262144,
       prf: "hmac-sha256",
-      salt: getRandomBytesSync(32).toString("hex"),
+      salt: bytesToHex(getRandomBytesSync(32)),
     },
   };
 }
@@ -27,14 +27,14 @@ export function defaultScryptModule(): Pick<IScryptKdfModule, "function" | "para
       n: 262144,
       r: 8,
       p: 1,
-      salt: getRandomBytesSync(32).toString("hex"),
+      salt: bytesToHex(getRandomBytesSync(32)),
     },
   };
 }
 
 // kdf operations
 
-export async function kdf(mod: IKdfModule, password: Buffer): Promise<Buffer> {
+export async function kdf(mod: IKdfModule, password: Uint8Array): Promise<Uint8Array> {
   if (mod.function === "pbkdf2") {
     return await doPbkdf2(mod.params, password);
   } else if (mod.function === "scrypt") {
@@ -43,20 +43,20 @@ export async function kdf(mod: IKdfModule, password: Buffer): Promise<Buffer> {
     throw new Error("Invalid kdf type");
   }
 }
-async function doPbkdf2(params: IPbkdf2KdfModule["params"], password: Buffer): Promise<Buffer> {
+async function doPbkdf2(params: IPbkdf2KdfModule["params"], password: Uint8Array): Promise<Uint8Array> {
   return pbkdf2(
     password,
-    Buffer.from(params.salt, "hex"),
+    hexToBytes(params.salt),
     params.c,
     params.dklen,
     params.prf.slice(5),
   );
 }
 
-async function doScrypt(params: IScryptKdfModule["params"], password: Buffer): Promise<Buffer> {
+async function doScrypt(params: IScryptKdfModule["params"], password: Uint8Array): Promise<Uint8Array> {
   return scrypt(
     password,
-    Buffer.from(params.salt, "hex"),
+    hexToBytes(params.salt),
     params.n,
     params.p,
     params.r,

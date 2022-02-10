@@ -1,13 +1,11 @@
-import Ajv = require("ajv");
-import { Buffer } from "buffer";
 import {v4 as uuidV4} from "uuid";
-import schema = require("./schema.json");
 
 import { IKeystore, IKdfModule, ICipherModule, IChecksumModule } from "./types";
 import { kdf, defaultPbkdfModule, defaultScryptModule } from "./kdf";
 import { checksum, verifyChecksum, defaultSha256Module } from "./checksum";
 import { cipherEncrypt, cipherDecrypt, defaultAes128CtrModule } from "./cipher";
 import { normalizePassword } from "./password";
+import { bytesToHex, hexToBytes } from "ethereum-cryptography/utils";
 
 export {
   defaultPbkdfModule,
@@ -44,7 +42,7 @@ export async function create(
     uuid: uuidV4(),
     description: description || undefined,
     path: path,
-    pubkey: Buffer.from(pubkey).toString("hex"),
+    pubkey: bytesToHex(pubkey),
     crypto: {
       kdf: {
         function: kdfMod.function,
@@ -56,14 +54,14 @@ export async function create(
       checksum: {
         function: checksumMod.function,
         params: {},
-        message: (await checksum(checksumMod as IChecksumModule, encryptionKey, ciphertext)).toString("hex"),
+        message: bytesToHex(await checksum(checksumMod as IChecksumModule, encryptionKey, ciphertext)),
       },
       cipher: {
         function: cipherMod.function,
         params: {
           ...cipherMod.params,
         },
-        message: ciphertext.toString("hex"),
+        message: bytesToHex(ciphertext),
       },
     },
   };
@@ -74,51 +72,18 @@ export async function create(
  */
 export async function verifyPassword(keystore: IKeystore, password: string | Uint8Array): Promise<boolean> {
   const decryptionKey = await kdf(keystore.crypto.kdf, normalizePassword(password));
-  const ciphertext = Buffer.from(keystore.crypto.cipher.message, "hex");
+  const ciphertext = hexToBytes(keystore.crypto.cipher.message);
   return verifyChecksum(keystore.crypto.checksum, decryptionKey, ciphertext);
 }
 
 /**
  * Decrypt a keystore, returns the secret key or throws on invalid password
  */
-export async function decrypt(keystore: IKeystore, password: string | Uint8Array): Promise<Buffer> {
+export async function decrypt(keystore: IKeystore, password: string | Uint8Array): Promise<Uint8Array> {
   const decryptionKey = await kdf(keystore.crypto.kdf, normalizePassword(password));
-  const ciphertext = Buffer.from(keystore.crypto.cipher.message, "hex");
+  const ciphertext = hexToBytes(keystore.crypto.cipher.message);
   if (!(await verifyChecksum(keystore.crypto.checksum, decryptionKey, ciphertext))) {
     throw new Error("Invalid password");
   }
   return cipherDecrypt(keystore.crypto.cipher, decryptionKey.slice(0, 16));
-}
-
-// keystore validation
-
-/**
- * Return schema validation errors for a potential keystore object
- */
-export function schemaValidationErrors(data: unknown): Ajv.ErrorObject[] | null {
-  const ajv = new Ajv();
-  const validated = ajv.validate(schema, data)
-  if (validated) {
-    return null;
-  }
-  return ajv.errors as Ajv.ErrorObject[];
-}
-
-/**
- * Validate an unknown object as a valid keystore, throws on invalid keystore
- */
-export function validateKeystore(keystore: unknown): asserts keystore is IKeystore {
-  const errors = schemaValidationErrors(keystore);
-  if (errors) {
-    throw new Error(
-      `${errors[0].dataPath}: ${errors[0].message}`
-    );
-  }
-}
-
-/**
- * Predicate for validating an unknown object as a valid keystore
- */
-export function isValidKeystore(keystore: unknown): keystore is IKeystore {
-  return !schemaValidationErrors(keystore);
 }
