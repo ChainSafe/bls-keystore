@@ -1,6 +1,6 @@
 {
   "name": "@chainsafe/bls-keystore",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "main": "lib/index.js",
   "files": [
     "lib"
@@ -12,6 +12,12 @@
   "repository": "git@github.com:ChainSafe/bls-keystore.git",
   "author": "ChainSafe <info@chainsafe.io>",
   "license": "MIT",
+  "keywords": [
+    "ethereum",
+    "eth2",
+    "bls",
+    "eip-2335"
+  ],
   "scripts": {
     "prebuild": "rm -rf lib && yarn build:codegen",
     "build:codegen": "ts-node -P tsconfig.json scripts/schema-validation-codegen.ts",
