@@ -51,6 +51,6 @@
   },
   "dependencies": {
     "ethereum-cryptography": "^1.0.0",
-    "uuid": "^8.3.2"
+    "uuid": "8.3.2"
   }
 }
