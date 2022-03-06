@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { hexToBytes } from "ethereum-cryptography/utils";
 
 import { create, decrypt, verifyPassword, isValidKeystore, validateKeystore } from "../src"
+import {normalizePassword} from "../lib/password";
 
 describe("BLS12-381 Keystore Test", () => {
   it("Roundtrip should work", async function () {
