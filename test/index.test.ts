@@ -46,3 +46,29 @@ describe("Known Test Vectors", () => {
     }
   });
 });
+
+describe("Password Normalize Tests", () => {
+  it("should filter out unaccepted control codes from Uint8Array", function() {
+    //C1 codes lie between 0x00 - 0x1F (inclusive) | 0 - 31
+    const codeBetween0x00And0x1F = [...Array(32).keys()]
+    //C1 codes lie between 0x80 and 0x9F (inclusive) | 128 - 159
+    const codeBetween0x80And0x9F = [...Array(32).keys()].map(code => code + 128)
+    const passWithIllegalControl = new Uint8Array(
+      [103, ...codeBetween0x00And0x1F, ...codeBetween0x80And0x9F, 111]
+    )
+
+    const normalizedPassword = normalizePassword(passWithIllegalControl)
+    expect(normalizedPassword).to.be.deep.equal(new Uint8Array([103, 111]), "Unaccepted control codes should be filtered out of password Uint8Array")
+  })
+
+  it("should filter out unaccepted control codes from string", function() {
+    //C1 codes lie between 0x00 - 0x1F (inclusive) | 0 - 31
+    const codeBetween0x00And0x1F = [...Array(32).keys()]
+    const passWithIllegalControl = new TextDecoder().decode(new Uint8Array(
+        [103, ...codeBetween0x00And0x1F, 32, 111] // 32 represents space which is acceptable
+    ));
+
+    const normalizedPassword = new TextDecoder().decode(normalizePassword(passWithIllegalControl))
+    expect(normalizedPassword).to.equal("g o", "Unaccepted control codes should be filtered out of password string")
+  })
+})

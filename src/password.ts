@@ -9,15 +9,16 @@ import { utf8ToBytes } from "ethereum-cryptography/utils";
 export function normalizePassword(password: string | Uint8Array): Uint8Array {
   if (typeof password === "string") {
     return utf8ToBytes(
-        password.normalize("NFKD").split("").filter(char => {
-          return controlFilter(char.charCodeAt(0));
-    }).join(""));
+        password
+            .normalize("NFKD")
+            .split("")
+            .filter(char => controlCodeFilter(char.charCodeAt(0))).join(""));
   } else {
-    return password.filter(controlFilter);
+    return password.filter(controlCodeFilter);
   }
 }
 
 
-function controlFilter(charCode: number): boolean {
+function controlCodeFilter(charCode: number): boolean {
   return (charCode > 31) && !(charCode >= 127 && charCode <= 159)
 }
