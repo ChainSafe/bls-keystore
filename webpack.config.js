@@ -2,6 +2,7 @@ module.exports = {
   entry: "./src/web.ts",
   mode: "production",
   output: {
+    hashFunction: 'xxhash64',
     filename: "bundle.js"
   },
   devtool: "source-map",
