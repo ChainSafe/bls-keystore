@@ -1,3 +1,7 @@
+## 3.0.1 (2024-01-30)
+
+- fix: update dependencies ([#57](https://github.com/ChainSafe/bls-keystore/pull/57))
+
 ## 3.0.0 (2022-02-22)
 
 ### BREAKING CHANGES
