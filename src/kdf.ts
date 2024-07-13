@@ -34,6 +34,12 @@ export function defaultScryptModule(): Pick<IScryptKdfModule, "function" | "para
 
 // kdf operations
 
+const isNode =
+  typeof process !== "undefined" &&
+  process.versions != null &&
+  process.versions.node != null;
+
+
 export async function kdf(mod: IKdfModule, password: Uint8Array): Promise<Uint8Array> {
   if (mod.function === "pbkdf2") {
     return await doPbkdf2(mod.params, password);
@@ -44,6 +50,9 @@ export async function kdf(mod: IKdfModule, password: Uint8Array): Promise<Uint8A
   }
 }
 async function doPbkdf2(params: IPbkdf2KdfModule["params"], password: Uint8Array): Promise<Uint8Array> {
+  if (isNode) {
+    return await doPbkdf2Node(params, password);
+  }
   if (globalThis?.crypto?.subtle) {
     return await doPbkdf2WebCrypto(params, password);
   }
@@ -54,6 +63,11 @@ async function doPbkdf2(params: IPbkdf2KdfModule["params"], password: Uint8Array
     params.dklen,
     params.prf.slice(5),
   );
+}
+
+async function doPbkdf2Node(params: IPbkdf2KdfModule["params"], password: Uint8Array): Promise<Uint8Array> {
+  const crypto = await import("crypto");
+  return crypto.pbkdf2Sync(password, hexToBytes(params.salt), params.c, params.dklen, params.prf.slice(5));
 }
 
 async function doPbkdf2WebCrypto(params: IPbkdf2KdfModule["params"], password: Uint8Array): Promise<Uint8Array> {
@@ -86,6 +100,9 @@ function pickHash(hash: string): string {
 }
 
 async function doScrypt(params: IScryptKdfModule["params"], password: Uint8Array): Promise<Uint8Array> {
+  if (isNode) {
+    return await doScryptNode(params, password);
+  }
   return scrypt(
     password,
     hexToBytes(params.salt),
@@ -94,4 +111,14 @@ async function doScrypt(params: IScryptKdfModule["params"], password: Uint8Array
     params.r,
     params.dklen,
   );
+}
+
+async function doScryptNode(params: IScryptKdfModule["params"], password: Uint8Array): Promise<Uint8Array> {
+  const crypto = await import("crypto");
+  return crypto.scryptSync(password,hexToBytes(params.salt), params.dklen, {
+    N: params.n,
+    r: params.r,
+    p: params.p,
+    maxmem: params.n * params.r * 256,
+  });
 }
