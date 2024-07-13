@@ -30,13 +30,13 @@ export async function verifyChecksum(mod: IChecksumModule, key: Uint8Array, ciph
     if (globalThis?.crypto?.subtle) {
       return verifyChecksumWebCrypto(mod, key, ciphertext);
     }
-    return equalsBytes(hexToBytes(mod.message), sha256(checksumData(key as Uint8Array, ciphertext)));
+    return equalsBytes(hexToBytes(mod.message), sha256(checksumData(key, ciphertext)));
   } else {
     throw new Error("Invalid checksum type");
   }
 }
 
-async function verifyChecksumWebCrypto(mod: IChecksumModule, key: Uint8Array, ciphertext: Uint8Array) {
+async function verifyChecksumWebCrypto(mod: IChecksumModule, key: Uint8Array, ciphertext: Uint8Array): Promise<boolean> {
   if (mod.function === "sha256") {
     const data = checksumData(key, ciphertext);
     const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", data));
