@@ -34,7 +34,7 @@ export async function cipherEncrypt(mod: ICipherModule, key: Uint8Array, data: U
   }
 }
 
-export async function cipherEncryptWebCrypto(
+async function cipherEncryptWebCrypto(
   mod: ICipherModule,
   key: Uint8Array,
   data: Uint8Array
