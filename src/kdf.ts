@@ -62,9 +62,9 @@ async function doPbkdf2WebCrypto(params: IPbkdf2KdfModule["params"], password: U
     password,
     {name: "PBKDF2"},
     false,
-    ["deriveKey"],
+    ["deriveBits"],
   );
-  const key = await crypto.subtle.deriveKey(
+  return new Uint8Array(await crypto.subtle.deriveBits(
     {
       name: "PBKDF2",
       salt: hexToBytes(params.salt),
@@ -72,21 +72,16 @@ async function doPbkdf2WebCrypto(params: IPbkdf2KdfModule["params"], password: U
       hash: pickHash(params.prf.slice(5)),
     },
     passwordKey,
-    {name: "AES-CTR", length: params.dklen * 8},
-    true,
-    ["encrypt", "decrypt"]
-  );
-  return new Uint8Array(await crypto.subtle.exportKey("raw", key));
+    params.dklen * 8,
+  ));
 }
 
 function pickHash(hash: string): string {
   hash = hash.toLowerCase();
-  if (hash === "sha256") {
-    return "SHA-256";
-  } else if (hash === "sha512") {
-    return "SHA-512";
-  } else {
-    throw new Error("Invalid hash type");
+  switch (hash) {
+    case "sha256": return "SHA-256";
+    case "sha512": return "SHA-512";
+    default: throw new Error("Invalid hash type");
   }
 }
 
