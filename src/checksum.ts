@@ -27,7 +27,20 @@ export function checksum(mod: IChecksumModule, key: Uint8Array, ciphertext: Uint
 
 export async function verifyChecksum(mod: IChecksumModule, key: Uint8Array, ciphertext: Uint8Array): Promise<boolean> {
   if (mod.function === "sha256") {
-    return equalsBytes(hexToBytes(mod.message), sha256(checksumData(key, ciphertext)));
+    if (globalThis?.crypto?.subtle) {
+      return verifyChecksumWebCrypto(mod, key, ciphertext);
+    }
+    return equalsBytes(hexToBytes(mod.message), sha256(checksumData(key as Uint8Array, ciphertext)));
+  } else {
+    throw new Error("Invalid checksum type");
+  }
+}
+
+async function verifyChecksumWebCrypto(mod: IChecksumModule, key: Uint8Array, ciphertext: Uint8Array) {
+  if (mod.function === "sha256") {
+    const data = checksumData(key, ciphertext);
+    const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", data));
+    return equalsBytes(hexToBytes(mod.message), digest);
   } else {
     throw new Error("Invalid checksum type");
   }

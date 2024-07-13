@@ -60,7 +60,7 @@ async function doPbkdf2WebCrypto(params: IPbkdf2KdfModule["params"], password: U
   const passwordKey = await crypto.subtle.importKey(
     "raw",
     password,
-    "PBKDF2",
+    {name: "PBKDF2"},
     false,
     ["deriveKey"],
   );
@@ -72,7 +72,7 @@ async function doPbkdf2WebCrypto(params: IPbkdf2KdfModule["params"], password: U
       hash: pickHash(params.prf.slice(5)),
     },
     passwordKey,
-    { name: "AES-GCM", length: params.dklen * 8 },
+    {name: "AES-CTR", length: params.dklen * 8},
     true,
     ["encrypt", "decrypt"]
   );
