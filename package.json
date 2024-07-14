@@ -26,11 +26,14 @@
     "test": "yarn test:node && yarn test:browser",
     "test:node": "mocha --verbose --colors --coverage -r ts-node/register test/*.test.ts",
     "test:browser": "karma start",
-    "lint": "eslint --ext .ts src/"
+    "lint": "eslint --ext .ts src/",
+    "benchmark": "yarn benchmark:files test/perf/*.test.ts",
+    "benchmark:files": "NODE_OPTIONS='--loader=ts-node/esm' benchmark --config .benchrc.yaml --local benchmark_data"
   },
   "devDependencies": {
+    "@dapplion/benchmark": "^0.2.4",
     "@types/chai": "^4.2.11",
-    "@types/mocha": "^7.0.2",
+    "@types/mocha": "^10.0.6",
     "@types/node": "^20.11.11",
     "@types/uuid": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
@@ -46,7 +49,7 @@
     "karma-mocha": "^2.0.1",
     "karma-spec-reporter": "^0.0.32",
     "karma-webpack": "^5.0.0",
-    "mocha": "^7.1.2",
+    "mocha": "^10.2.0",
     "ts-loader": "^9.5.0",
     "ts-node": "^10.9.0",
     "typescript": "^5.3.0",
