@@ -1,3 +1,7 @@
+## 3.1.0 (2024-07-15)
+
+- feat: use native crypto functions ([#61](https://github.com/ChainSafe/bls-keystore/pull/61)) 
+
 ## 3.0.1 (2024-01-30)
 
 - fix: update dependencies ([#57](https://github.com/ChainSafe/bls-keystore/pull/57))
