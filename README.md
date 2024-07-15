@@ -1,6 +1,6 @@
 # @ChainSafe/bls-keystore
 
-![npm](https://img.shields.io/npm/v/@ChainSafe/bls-keystore)
+![npm](https://img.shields.io/npm/v/@chainsafe/bls-keystore)
 ![Discord](https://img.shields.io/discord/593655374469660673?color=blue&label=Discord&logo=discord)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![es-version](https://img.shields.io/badge/ES-2015-yellow)
@@ -12,7 +12,6 @@
 
 Functional interface
 ```typescript
-import {Buffer} from "buffer";
 import {
   IKeystore,
   create,
@@ -35,7 +34,7 @@ const keystore: IKeystore = await create(password, privateKey, publicKey, path);
 await verifyPassword(keystore, password); //true | false
 
 // decrypt
-const decryptedPrivateKey: Buffer = await decrypt(keystore, password);
+const decryptedPrivateKey: Uint8Array = await decrypt(keystore, password);
 
 // convert to string
 JSON.stringify(keystore); //string
@@ -49,7 +48,6 @@ validateKeystore(data); // throws if invalid
 
 Class-based interface
 ```typescript
-import {Buffer} from "buffer";
 import {
   Keystore,
 } from "@chainsafe/bls-keystore";
@@ -67,7 +65,7 @@ const keystore: Keystore = await Keystore.create(password, privateKey, publicKey
 await keystore.verifyPassword(password); //true | false
 
 // decrypt
-const decryptedPrivateKey: Buffer = await keystore.decrypt(password);
+const decryptedPrivateKey: Uint8Array = await keystore.decrypt(password);
 
 // convert to string
 keystore.stringify(); //string
