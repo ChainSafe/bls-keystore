@@ -1,8 +1,8 @@
 import { getRandomBytesSync } from "ethereum-cryptography/random";
-import { encrypt as aesEncrypt, decrypt as aesDecrypt } from "ethereum-cryptography/aes";
-
-import { ICipherModule } from "./types";
 import { bytesToHex, hexToBytes } from "ethereum-cryptography/utils";
+
+import { ICipherModule } from "../types";
+import { aes128CtrDecrypt, aes128CtrEncrypt } from "./aes128Ctr";
 
 export function defaultAes128CtrModule(): Pick<ICipherModule, "function" | "params"> {
   return {
@@ -16,13 +16,7 @@ export function defaultAes128CtrModule(): Pick<ICipherModule, "function" | "para
 export async function cipherEncrypt(mod: ICipherModule, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
   if (mod.function === "aes-128-ctr") {
     try {
-      return await aesEncrypt(
-        data,
-        key,
-        hexToBytes(mod.params.iv),
-        mod.function,
-        false,
-      );
+      return await aes128CtrEncrypt(key, hexToBytes(mod.params.iv), data);
     } catch (e) {
       throw new Error("Unable to encrypt");
     }
@@ -34,13 +28,7 @@ export async function cipherEncrypt(mod: ICipherModule, key: Uint8Array, data: U
 export async function cipherDecrypt(mod: ICipherModule, key: Uint8Array): Promise<Uint8Array> {
   if (mod.function === "aes-128-ctr") {
     try {
-      return await aesDecrypt(
-        hexToBytes(mod.message),
-        key,
-        hexToBytes(mod.params.iv),
-        mod.function,
-        false,
-      );
+      return await aes128CtrDecrypt(key, hexToBytes(mod.params.iv), hexToBytes(mod.message));
     } catch (e) {
       throw new Error("Unable to decrypt")
     }

@@ -1,9 +1,9 @@
 import { getRandomBytesSync } from "ethereum-cryptography/random";
-import { pbkdf2 } from "ethereum-cryptography/pbkdf2";
-import { scrypt } from "ethereum-cryptography/scrypt";
 import { bytesToHex, hexToBytes } from "ethereum-cryptography/utils"
 
-import { IKdfModule, IPbkdf2KdfModule, IScryptKdfModule } from "./types";
+import { IKdfModule, IPbkdf2KdfModule, IScryptKdfModule } from "../types";
+import { doPbkdf2 } from "./pbkdf2";
+import { doScrypt } from "./scrypt";
 
 // default kdf configurations
 
@@ -36,30 +36,12 @@ export function defaultScryptModule(): Pick<IScryptKdfModule, "function" | "para
 
 export async function kdf(mod: IKdfModule, password: Uint8Array): Promise<Uint8Array> {
   if (mod.function === "pbkdf2") {
-    return await doPbkdf2(mod.params, password);
+    const { salt, c, dklen } = mod.params;
+    return await doPbkdf2(hexToBytes(salt), c, dklen, password);
   } else if (mod.function === "scrypt") {
-    return await doScrypt(mod.params, password);
+    const { salt, n, p, r, dklen } = mod.params;
+    return await doScrypt(hexToBytes(salt), n, p, r, dklen, password);
   } else {
     throw new Error("Invalid kdf type");
   }
-}
-async function doPbkdf2(params: IPbkdf2KdfModule["params"], password: Uint8Array): Promise<Uint8Array> {
-  return pbkdf2(
-    password,
-    hexToBytes(params.salt),
-    params.c,
-    params.dklen,
-    params.prf.slice(5),
-  );
-}
-
-async function doScrypt(params: IScryptKdfModule["params"], password: Uint8Array): Promise<Uint8Array> {
-  return scrypt(
-    password,
-    hexToBytes(params.salt),
-    params.n,
-    params.p,
-    params.r,
-    params.dklen,
-  );
 }

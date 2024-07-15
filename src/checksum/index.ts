@@ -1,7 +1,7 @@
-import { sha256 } from "ethereum-cryptography/sha256";
 import { concatBytes, equalsBytes, hexToBytes } from "ethereum-cryptography/utils";
 
-import { IChecksumModule } from "./types";
+import { IChecksumModule } from "../types";
+import { sha256 } from "./sha256";
 
 // default checksum configuration
 
@@ -17,9 +17,9 @@ function checksumData(key: Uint8Array, ciphertext: Uint8Array): Uint8Array {
   return concatBytes(key.slice(16), ciphertext);
 }
 
-export function checksum(mod: IChecksumModule, key: Uint8Array, ciphertext: Uint8Array): Promise<Uint8Array> {
+export async function checksum(mod: IChecksumModule, key: Uint8Array, ciphertext: Uint8Array): Promise<Uint8Array> {
   if (mod.function === "sha256") {
-    return Promise.resolve(sha256(checksumData(key, ciphertext)));
+    return await sha256(checksumData(key, ciphertext));
   } else {
     throw new Error("Invalid checksum type");
   }
@@ -27,7 +27,7 @@ export function checksum(mod: IChecksumModule, key: Uint8Array, ciphertext: Uint
 
 export async function verifyChecksum(mod: IChecksumModule, key: Uint8Array, ciphertext: Uint8Array): Promise<boolean> {
   if (mod.function === "sha256") {
-    return equalsBytes(hexToBytes(mod.message), sha256(checksumData(key, ciphertext)));
+    return equalsBytes(hexToBytes(mod.message), await sha256(checksumData(key, ciphertext)));
   } else {
     throw new Error("Invalid checksum type");
   }
