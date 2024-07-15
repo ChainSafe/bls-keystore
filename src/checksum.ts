@@ -2,6 +2,7 @@ import { sha256 } from "ethereum-cryptography/sha256";
 import { concatBytes, equalsBytes, hexToBytes } from "ethereum-cryptography/utils";
 
 import { IChecksumModule } from "./types";
+import { hasWebCrypto } from "./env";
 
 // default checksum configuration
 
@@ -27,7 +28,7 @@ export function checksum(mod: IChecksumModule, key: Uint8Array, ciphertext: Uint
 
 export async function verifyChecksum(mod: IChecksumModule, key: Uint8Array, ciphertext: Uint8Array): Promise<boolean> {
   if (mod.function === "sha256") {
-    if (globalThis?.crypto?.subtle) {
+    if (hasWebCrypto) {
       return verifyChecksumWebCrypto(mod, key, ciphertext);
     }
     return equalsBytes(hexToBytes(mod.message), sha256(checksumData(key, ciphertext)));

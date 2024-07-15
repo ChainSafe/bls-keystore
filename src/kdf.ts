@@ -4,6 +4,7 @@ import { scrypt } from "ethereum-cryptography/scrypt";
 import { bytesToHex, hexToBytes } from "ethereum-cryptography/utils"
 
 import { IKdfModule, IPbkdf2KdfModule, IScryptKdfModule } from "./types";
+import { hasWebCrypto, isNode } from "./env";
 
 // default kdf configurations
 
@@ -34,11 +35,6 @@ export function defaultScryptModule(): Pick<IScryptKdfModule, "function" | "para
 
 // kdf operations
 
-const isNode =
-  typeof process !== "undefined" &&
-  process.versions != null &&
-  process.versions.node != null;
-
 
 export async function kdf(mod: IKdfModule, password: Uint8Array): Promise<Uint8Array> {
   if (mod.function === "pbkdf2") {
@@ -53,7 +49,7 @@ async function doPbkdf2(params: IPbkdf2KdfModule["params"], password: Uint8Array
   if (isNode) {
     return await doPbkdf2Node(params, password);
   }
-  if (globalThis?.crypto?.subtle) {
+  if (hasWebCrypto) {
     return await doPbkdf2WebCrypto(params, password);
   }
   return pbkdf2(

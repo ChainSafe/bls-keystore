@@ -3,6 +3,7 @@ import { encrypt as aesEncrypt, decrypt as aesDecrypt } from "ethereum-cryptogra
 
 import { ICipherModule } from "./types";
 import { bytesToHex, hexToBytes } from "ethereum-cryptography/utils";
+import { hasWebCrypto } from "./env";
 
 export function defaultAes128CtrModule(): Pick<ICipherModule, "function" | "params"> {
   return {
@@ -16,7 +17,7 @@ export function defaultAes128CtrModule(): Pick<ICipherModule, "function" | "para
 export async function cipherEncrypt(mod: ICipherModule, key: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
   if (mod.function === "aes-128-ctr") {
     try {
-      if (globalThis?.crypto?.subtle) {
+      if (hasWebCrypto) {
         return await cipherEncryptWebCrypto(mod, key, data);
       }
       return await aesEncrypt(
@@ -52,7 +53,7 @@ async function cipherEncryptWebCrypto(
 export async function cipherDecrypt(mod: ICipherModule, key: Uint8Array): Promise<Uint8Array> {
   if (mod.function === "aes-128-ctr") {
     try {
-      if (globalThis?.crypto?.subtle) {
+      if (hasWebCrypto) {
         return await cipherDecryptWebCrypto(mod, key);
       }
       return await aesDecrypt(
